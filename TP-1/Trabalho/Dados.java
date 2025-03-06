@@ -14,10 +14,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.RandomAccessFile;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Dados {
 
@@ -63,6 +67,7 @@ public class Dados {
 
             String line;
             String PLinha = leitura.readLine();
+            int a = 0;
 
             while((line = leitura.readLine()) != null){
 
@@ -75,7 +80,11 @@ public class Dados {
                 String paisFilme = dadosFilme.get(4);
                 paisFilme = PesquisarPaisAbre(binarioPais, paisFilme);
                 contador++;
-                escreverFilmeBinario(out, contador, dadosFilme, paisFilme);
+
+                a++;
+
+                System.out.println(a);
+                escreverFilmeBinario(out, contador, dadosFilme, paisFilme, false);
                 
             }
 
@@ -129,7 +138,25 @@ public class Dados {
 
     }
 
-    private static void escreverFilmeBinario(DataOutput out, int id, List<String> lista, String pais) throws IOException {
+    private static void escreverFilmeBinario(DataOutput out, int id, List<String> lista, String pais, boolean formasFormatacao) throws IOException {
+
+
+        DateTimeFormatter format;
+
+        if (formasFormatacao) {
+            DateTimeFormatter Entradaformat = DateTimeFormatter.ofPattern("yyyy/M/d");
+
+            LocalDate data = LocalDate.parse(lista.get(5), Entradaformat);
+
+            format = DateTimeFormatter.ofPattern("M/d/yyyy");
+
+            lista.set(5, data.format(format));
+        }
+
+        else{
+            format = DateTimeFormatter.ofPattern("M/d/yyyy");
+        }
+        
     
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dataOut = new DataOutputStream(baos);
@@ -152,14 +179,15 @@ public class Dados {
         byte[] paisBytes = pais.getBytes("UTF-8");
         dataOut.writeShort(paisBytes.length);
         dataOut.write(paisBytes);
-        
-        byte[] anoAdiBytes = lista.get(5).getBytes("UTF-8");
-        dataOut.writeShort(anoAdiBytes.length);
-        dataOut.write(anoAdiBytes);
-        
-        byte[] anoLanBytes = lista.get(6).getBytes("UTF-8");
-        dataOut.writeShort(anoLanBytes.length);
-        dataOut.write(anoLanBytes);
+
+        LocalDate data = LocalDate.parse(lista.get(5), format);
+        dataOut.writeByte(data.getMonthValue());
+        dataOut.writeByte(data.getDayOfMonth());
+        dataOut.writeShort(data.getYear());
+
+
+        Year anoLan = Year.parse(lista.get(6));
+        dataOut.writeShort(anoLan.getValue());
         
         byte[] classificacaoBytes = lista.get(7).getBytes("UTF-8");
         dataOut.writeShort(classificacaoBytes.length);
@@ -194,6 +222,7 @@ public class Dados {
                 DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(objectBytes));
                 
                 Filmes filme = new Filmes();
+                System.out.println(i + 1);
                 filme.readPersonalizado(dataIn);
                 
                 filmes.add(filme);
@@ -305,7 +334,7 @@ public class Dados {
 
     public static String PesquisarPaisAbre(String binarioFilePais, String NomePais){
 
-        String resultado = "---";
+        String resultado = "NOT";
 
         try(RandomAccessFile file = new RandomAccessFile(binarioFilePais, "r")){
             
@@ -559,6 +588,135 @@ public class Dados {
         return classificacao;
     }
 
+    public static void Ordenacao(String binarioFile, Scanner sc){
+
+        String FileTMP1 = "Tmp1.bin";
+        String FileTMP2 = "Tmp2.bin";
+        String FileTMP3 = "Tmp3.bin";
+        String FileTMP4 = "Tmp4.bin";
+
+        try(RandomAccessFile file = new RandomAccessFile(binarioFile, "r")){
+
+            boolean intercalacao = false;
+
+            int Ntotais = file.readInt();
+
+            System.out.println("Digite a quantidade de blocos para a intercalação...");
+            int blocos = sc.nextInt();
+
+            int tmp = (Ntotais / blocos) + 1;
+
+            for(int i = 0; i < tmp; i++){
+
+                List<Integer> lista = new ArrayList<>();
+
+                while(lista.size() < tmp - 1){
+
+                    byte[] objectBytes = new byte[file.readInt()];
+
+                    if(objectBytes != null){
+
+                        file.readFully(objectBytes);
+                
+                        DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(objectBytes));
+
+                        dataIn.mark(0);
+
+                        boolean lapide = dataIn.readBoolean();
+                        
+                        if(lapide){
+
+                            int id = dataIn.readInt();
+
+                            lista.add(id);
+
+                        }
+
+                    }
+
+                }
+
+                int arrayOrdenado[] = ordenacaoID(lista);
+
+                if(intercalacao){
+
+                    try(DataOutputStream outP = new DataOutputStream(new FileOutputStream(FileTMP1))){
+
+                        for(int j = 0; j < arrayOrdenado.length; j++){
+
+                            Filmes NovoFilme = PesquisarID(binarioFile, arrayOrdenado[j]);
+
+                            NovoFilme.writePersonalizado(outP, true);
+                        }
+
+                        intercalacao = false;
+
+                    }catch (IOException e){
+                        System.out.println("Arquivo nao encontrado");
+                        e.printStackTrace();
+                    }
+                }
+
+                else{
+
+                    try(DataOutputStream outP = new DataOutputStream(new FileOutputStream(FileTMP2))){
+
+                        for(int j = 0; j < arrayOrdenado.length; j++){
+
+                            Filmes NovoFilme = PesquisarID(binarioFile, arrayOrdenado[j]);
+
+                            NovoFilme.writePersonalizado(outP, true);
+                        }
+
+                        intercalacao = true;
+
+                    }catch (IOException e){
+                        System.out.println("Arquivo nao encontrado");
+                        e.printStackTrace();
+                    }
+
+                }
+
+                
+
+            }
+
+        }catch (IOException e){
+            System.out.println("Arquivo nao encontrado");
+            e.printStackTrace();
+        }
+
+    }
+
+    public static int[] ordenacaoID(List<Integer> lista){
+
+        int N = lista.size();
+        int M = 0;
+
+        for (int i = 0; i < N; i++) {
+            M = Math.max(M, lista.get(i));
+        }
+
+        int[] countArray = new int[M + 1];
+
+        for (int i = 0; i < N; i++) {
+            countArray[lista.get(i)]++;
+        }
+
+        for (int i = 1; i <= M; i++) {
+            countArray[i] += countArray[i - 1];
+        }
+
+        int[] outputArray = new int[N];
+
+        for (int i = N - 1; i >= 0; i--) {
+            outputArray[countArray[lista.get(i)] - 1] = lista.get(i);
+            countArray[lista.get(i)]--;
+        }
+
+        return outputArray;
+    }
+
     public static void main(String[] args) {
         int opcao;
         String file = "netflix1.csv";
@@ -576,6 +734,7 @@ public class Dados {
             System.out.println("\t4: Atualizar Lista");
             System.out.println("\t5: Remover Filme/Serie");
             System.out.println("\t6: Adicionar novo Filme/Serie");
+            System.out.println("\t7: Ordenar");
             System.out.println("\t0: Sair");
             System.out.println("\t-------------------");
 
@@ -740,7 +899,7 @@ public class Dados {
 
                                     pais = PesquisarPaisAbre(binarioPais, pais);
 
-                                    if(pais.equals("---")){
+                                    if(pais.equals("NOT")){
                                         System.out.println("Pais nao encontrado, tente novamente caso deseja adicinar um pais...");
                                     }
 
@@ -757,9 +916,11 @@ public class Dados {
 
                                     sc.nextLine();
 
-                                    System.out.println("Digite o novo ano de adicao:");
+                                    System.out.println("Digite o novo ano de adicao ex: 2001/5/28:");
                                     String anoAdicao = sc.nextLine();
-                                    novoFilme.setANO_ADI(anoAdicao);
+                                    DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/M/d");
+                                    LocalDate data = LocalDate.parse(anoAdicao, format);
+                                    novoFilme.setANO_ADI(data);
                                     System.out.println("Ano de adicao atualizado...");
                                     break;
 
@@ -769,9 +930,10 @@ public class Dados {
 
                                     sc.nextLine();
 
-                                    System.out.println("Digite o novo ano de lancamento:");
+                                    System.out.println("Digite o novo ano de lancamento ex: 2021:");
                                     String anoLancamento = sc.nextLine();
-                                    novoFilme.setANO_LAN(anoLancamento);
+                                    Year ano = Year.parse(anoLancamento);
+                                    novoFilme.setANO_LAN(ano);
                                     System.out.println("Ano de lancamento atualizado...");
                                     break;
 
@@ -878,11 +1040,11 @@ public class Dados {
                         pais = PesquisarPaisAbre(binarioPais, pais);
                         lista.add(pais);
 
-                        System.out.println("\tDigite o ano de adicao: ");
+                        System.out.println("\tDigite o novo ano de adicao ex: 2001/5/28:");
                         String anoAdicao = sc.nextLine();
                         lista.add(anoAdicao);
 
-                        System.out.println("\tDigite o ano de lancamento: ");
+                        System.out.println("\tDigite o ano de lancamento ex: 2021: ");
                         String anoLancamento = sc.nextLine();
                         lista.add(anoLancamento);
 
@@ -926,7 +1088,7 @@ public class Dados {
                                     BinarioFilmes.writeInt(posicao);
 
                                     BinarioFilmes.seek(BinarioFilmes.length());
-                                    escreverFilmeBinario(BinarioFilmes, posicao, lista, pais);    
+                                    escreverFilmeBinario(BinarioFilmes, posicao, lista, pais, true);    
                                     
                                     System.out.println("Atualizando dados...");
 
@@ -1015,7 +1177,7 @@ public class Dados {
                                     pais = pais.substring(0,1).toUpperCase() + pais.substring(1); 
                                     pais = PesquisarPaisAbre(binarioPais, pais);
 
-                                    if(pais.equals("---")){
+                                    if(pais.equals("NOT")){
                                         System.out.println("Pais nao encontrado, tente novamente caso deseja adicinar um pais...");
                                     }
 
@@ -1032,9 +1194,11 @@ public class Dados {
 
                                     sc.nextLine();
 
-                                    System.out.println("Digite o novo ano de adicao:");
+                                    System.out.println("Digite o novo ano de adicao ex: 12/31/2001:");
                                     anoAdicao = sc.nextLine();
-                                    novoFilme.setANO_ADI(anoAdicao);
+                                    DateTimeFormatter format = DateTimeFormatter.ofPattern("M/d/yyyy");
+                                    LocalDate data = LocalDate.parse(anoAdicao, format);
+                                    novoFilme.setANO_ADI(data);
                                     System.out.println("Ano de adicao atualizado...");
                                     break;
 
@@ -1044,9 +1208,10 @@ public class Dados {
 
                                     sc.nextLine();
 
-                                    System.out.println("Digite o novo ano de lancamento:");
+                                    System.out.println("Digite o novo ano de lancamento ex: 2021:");
                                     anoLancamento = sc.nextLine();
-                                    novoFilme.setANO_LAN(anoLancamento);
+                                    Year ano = Year.parse(anoLancamento);
+                                    novoFilme.setANO_LAN(ano);
                                     System.out.println("Ano de lancamento atualizado...");
                                     break;
 
@@ -1055,6 +1220,7 @@ public class Dados {
                                 case 7:{
 
                                     novoFilme.setCLASSIFICACAO(classificacaoIndicativa(sc));
+                                    break;
 
                                 }
 
@@ -1101,6 +1267,13 @@ public class Dados {
 
                 }
 
+                case 7:{
+
+                    Ordenacao(binarioFile, sc);
+                    break;
+
+                }
+                
                 case 0:{
                     
                     System.out.println("Saindo...");
@@ -1130,8 +1303,8 @@ class Filmes implements Externalizable{
     private String nome;
     private String diretor;
     private String pais;
-    private String ano_adi;
-    private String ano_lan;
+    private LocalDate ano_adi;
+    private Year ano_lan;
     private String classificacao;
     private String duracao;
     private String Genero;
@@ -1140,14 +1313,22 @@ class Filmes implements Externalizable{
 
     public Filmes(List<String> lista, int tmp){
 
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/M/d");
+
         this.lapide = false;
         this.id = tmp;
         this.tipo = lista.get(1);
         this.nome = lista.get(2);
         this.diretor = lista.get(3);
         this.pais = lista.get(4);
-        this.ano_adi = lista.get(5);
-        this.ano_lan = lista.get(6);
+
+        LocalDate data = LocalDate.parse(lista.get(5), format);
+        this.ano_adi = data;
+
+
+        Year anoLan = Year.parse(lista.get(6));
+        this.ano_lan = anoLan;
+
         this.classificacao = lista.get(7);
         this.duracao = lista.get(8);
         this.Genero = lista.get(9);
@@ -1178,13 +1359,11 @@ class Filmes implements Externalizable{
         dataOut.writeShort(paisBytes.length);
         dataOut.write(paisBytes);
 
-        byte[] ano_adiBytes = ano_adi.getBytes("UTF-8");
-        dataOut.writeShort(ano_adiBytes.length);
-        dataOut.write(ano_adiBytes);
+        dataOut.writeByte(ano_adi.getMonthValue());
+        dataOut.writeByte(ano_adi.getDayOfMonth());
+        dataOut.writeShort(ano_adi.getYear());
 
-        byte[] ano_lanBytes = ano_lan.getBytes("UTF-8");
-        dataOut.writeShort(ano_lanBytes.length);
-        dataOut.write(ano_lanBytes);
+        dataOut.writeShort(ano_lan.getValue());
 
         byte[] classificacaoBytes = classificacao.getBytes("UTF-8");
         dataOut.writeShort(classificacaoBytes.length);
@@ -1228,13 +1407,14 @@ class Filmes implements Externalizable{
         dataIn.readFully(paisBytes);
         pais = new String(paisBytes, "UTF-8");
 
-        byte[] ano_adiBytes = new byte[dataIn.readShort()];
-        dataIn.readFully(ano_adiBytes);
-        ano_adi = new String(ano_adiBytes, "UTF-8");
+        int mes = dataIn.readByte();
+        int dia = dataIn.readByte();
+        int ano = dataIn.readShort();
+        ano_adi = LocalDate.of(ano, mes, dia);
+        
 
-        byte[] ano_lanBytes = new byte[dataIn.readShort()];
-        dataIn.readFully(ano_lanBytes);
-        ano_lan = new String(ano_lanBytes, "UTF-8");
+        int anoLan = dataIn.readShort();
+        ano_lan = Year.of(anoLan);
 
         byte[] classificacaoBytes = new byte[dataIn.readShort()];
         dataIn.readFully(classificacaoBytes);
@@ -1315,17 +1495,17 @@ class Filmes implements Externalizable{
         this.pais = pais;
     }
 
-    public String getANO_ADI(){
+    public LocalDate getANO_ADI(){
         return ano_adi;
     }
-    public void setANO_ADI (String ano_adi){
+    public void setANO_ADI (LocalDate ano_adi){
         this.ano_adi = ano_adi;
     }
 
-    public String getANO_LAN(){
+    public Year getANO_LAN(){
         return ano_lan;
     }
-    public void setANO_LAN (String ano_lan){
+    public void setANO_LAN (Year ano_lan){
         this.ano_lan = ano_lan;
     }
 
