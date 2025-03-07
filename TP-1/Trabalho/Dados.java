@@ -67,7 +67,6 @@ public class Dados {
 
             String line;
             String PLinha = leitura.readLine();
-            int a = 0;
 
             while((line = leitura.readLine()) != null){
 
@@ -81,9 +80,6 @@ public class Dados {
                 paisFilme = PesquisarPaisAbre(binarioPais, paisFilme);
                 contador++;
 
-                a++;
-
-                System.out.println(a);
                 escreverFilmeBinario(out, contador, dadosFilme, paisFilme, false);
                 
             }
@@ -139,7 +135,6 @@ public class Dados {
     }
 
     private static void escreverFilmeBinario(DataOutput out, int id, List<String> lista, String pais, boolean formasFormatacao) throws IOException {
-
 
         DateTimeFormatter format;
 
@@ -208,7 +203,6 @@ public class Dados {
     }
 
     public static void lerBinario(String binarioFile) {
-        List<Filmes> filmes = new ArrayList<>();
 
         try (DataInputStream in = new DataInputStream(new FileInputStream(binarioFile))){
 
@@ -222,10 +216,9 @@ public class Dados {
                 DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(objectBytes));
                 
                 Filmes filme = new Filmes();
-                System.out.println(i + 1);
                 filme.readPersonalizado(dataIn);
                 
-                filmes.add(filme);
+                filme.Ler();
             }
 
             in.close();
@@ -234,14 +227,6 @@ public class Dados {
             System.out.println("Arquivo nao encontrado");
         }catch(IOException e){
             e.printStackTrace();
-        }
-
-        for(Filmes filme : filmes){
-
-            if(filme.getLAPIDE() == false){
-                filme.Ler();
-            }
-
         }
     } 
 
