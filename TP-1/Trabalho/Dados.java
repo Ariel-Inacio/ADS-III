@@ -305,6 +305,7 @@ public class Dados {
 
         }catch (IOException e){
             System.out.println("Arquivo nao encontrado");
+            e.printStackTrace();
         }
     }
 
@@ -573,134 +574,270 @@ public class Dados {
         return classificacao;
     }
 
-    public static void Ordenacao(String binarioFile, Scanner sc){
+    {
 
-        String FileTMP1 = "Tmp1.bin";
-        String FileTMP2 = "Tmp2.bin";
-        String FileTMP3 = "Tmp3.bin";
-        String FileTMP4 = "Tmp4.bin";
+    // public static void ordenarArquivo(String binadrioFile, int numCaminhos, int maxRegistrosMembers) {
 
-        try(RandomAccessFile file = new RandomAccessFile(binarioFile, "r")){
+    //     dividirArquivo(binadrioFile, numCaminhos, maxRegistrosMembers);
+    //     intercalarArquivos(binadrioFile, numCaminhos, maxRegistrosMembers);
 
-            boolean intercalacao = false;
+    // }
 
-            int Ntotais = file.readInt();
+    // public static void dividirArquivo(String binadrioFile, int numCaminhos, int maxRegistrosMembers){
 
-            System.out.println("Digite a quantidade de blocos para a intercalação...");
-            int blocos = sc.nextInt();
+    //     try(RandomAccessFile file = new RandomAccessFile(binadrioFile, "r")){
 
-            int tmp = (Ntotais / blocos) + 1;
+    //         List<Filmes> buffer = new ArrayList<>();
+    //         int fileIndex = 0;
 
-            for(int i = 0; i < tmp; i++){
+    //         int T = file.readInt();
 
-                List<Integer> lista = new ArrayList<>();
+    //         while(file.getFilePointer() < file.length()){
 
-                while(lista.size() < tmp - 1){
+    //             int ByteObject = file.readInt();
+    //             byte[]dadosFilmes = new byte[ByteObject];
+    //             file.readFully(dadosFilmes);
 
-                    byte[] objectBytes = new byte[file.readInt()];
+    //             ByteArrayInputStream byteStream = new ByteArrayInputStream(dadosFilmes);
+    //             DataInputStream dataIn = new DataInputStream(byteStream);
 
-                    if(objectBytes != null){
+    //             byteStream.mark(0);
 
-                        file.readFully(objectBytes);
-                
-                        DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(objectBytes));
+    //             if(dataIn.readBoolean()){
 
-                        dataIn.mark(0);
+    //                 byteStream.reset();
 
-                        boolean lapide = dataIn.readBoolean();
+    //                 Filmes novoFilme = new Filmes();
+    //                 novoFilme.readPersonalizado(dataIn);
+
+    //                 buffer.add(novoFilme);
+
+    //                 if(buffer.size() >= maxRegistrosMembers){
+
+    //                     salvarOrdenado(buffer, "temp" + fileIndex + ".dat");
+    //                     buffer.clear();
+    //                     fileIndex = (fileIndex + 1) % numCaminhos;
+
+    //                 }
+
+    //             }
+
+    //         }
+
+    //         if(!buffer.isEmpty()){
+    //             salvarOrdenado(buffer, "temp" + fileIndex + ".dat");
+    //         }
+
+    //     }catch (FileNotFoundException e) {
+    //         System.out.println("Arquivo não encontrado");
+    //         e.printStackTrace();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    // public static void salvarOrdenado(List<Filmes> registros, String nomeArquivo){
+
+    //     registros.sort(Comparator.comparingInt(Filmes::getID));
+
+    //     try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(nomeArquivo))){
+
+    //         for(Filmes registro : registros){
+
+    //             registro.writePersonalizado(dos, true);
+
+    //         }
+
+    //     }catch (FileNotFoundException e) {
+    //         System.out.println("Arquivo não encontrado");
+    //         e.printStackTrace();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+
+    // }
+
+    // public static void intercalarArquivos(String binarioFile, int numCaminhos, int maxRegistrosMembers) {
+    //     // Estrutura para manter um stream e o filme atual
+    //     class FilmeComStream {
+    //         DataInputStream stream;
+    //         Filmes filme;
+            
+    //         public FilmeComStream(String arquivo) throws IOException {
+    //             this.stream = new DataInputStream(new FileInputStream(arquivo));
+    //             this.filme = lerProximoFilme();
+    //         }
+            
+    //         private Filmes lerProximoFilme() {
+    //             try {
+    //                 if (stream.available() > 0) {
+    //                     int tamanhoObjeto = stream.readInt();
+    //                     byte[] dadosFilmes = new byte[tamanhoObjeto];
+    //                     stream.readFully(dadosFilmes);
                         
-                        if(lapide){
-
-                            int id = dataIn.readInt();
-
-                            lista.add(id);
-
-                        }
-
-                    }
-
-                }
-
-                int arrayOrdenado[] = ordenacaoID(lista);
-
-                if(intercalacao){
-
-                    try(DataOutputStream outP = new DataOutputStream(new FileOutputStream(FileTMP1))){
-
-                        for(int j = 0; j < arrayOrdenado.length; j++){
-
-                            Filmes NovoFilme = PesquisarID(binarioFile, arrayOrdenado[j]);
-
-                            NovoFilme.writePersonalizado(outP, true);
-                        }
-
-                        intercalacao = false;
-
-                    }catch (IOException e){
-                        System.out.println("Arquivo nao encontrado");
-                        e.printStackTrace();
-                    }
-                }
-
-                else{
-
-                    try(DataOutputStream outP = new DataOutputStream(new FileOutputStream(FileTMP2))){
-
-                        for(int j = 0; j < arrayOrdenado.length; j++){
-
-                            Filmes NovoFilme = PesquisarID(binarioFile, arrayOrdenado[j]);
-
-                            NovoFilme.writePersonalizado(outP, true);
-                        }
-
-                        intercalacao = true;
-
-                    }catch (IOException e){
-                        System.out.println("Arquivo nao encontrado");
-                        e.printStackTrace();
-                    }
-
-                }
-
+    //                     ByteArrayInputStream byteStream = new ByteArrayInputStream(dadosFilmes);
+    //                     DataInputStream dataIn = new DataInputStream(byteStream);
+                        
+    //                     Filmes novoFilme = new Filmes();
+    //                     novoFilme.readPersonalizado(dataIn);
+    //                     return novoFilme;
+    //                 }
+    //             } catch (IOException e) {
+    //                 try {
+    //                     stream.close();
+    //                 } catch (IOException ex) {
+    //                     ex.printStackTrace();
+    //                 }
+    //             }
+    //             return null;
+    //         }
+            
+    //         public Filmes getFilme() {
+    //             return filme;
+    //         }
+            
+    //         public Filmes avancar() {
+    //             filme = lerProximoFilme();
+    //             return filme;
+    //         }
+            
+    //         public void fechar() {
+    //             try {
+    //                 stream.close();
+    //             } catch (IOException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     }
+    
+    //     // Contagem total de filmes nos arquivos temporários
+    //     int totalFilmes = 0;
+    //     for (int i = 0; i < numCaminhos; i++) {
+    //         File tempFile = new File("temp" + i + ".dat");
+    //         if (tempFile.exists()) {
+    //             try (DataInputStream countStream = new DataInputStream(new FileInputStream(tempFile))) {
+    //                 while (countStream.available() > 0) {
+    //                     int tamanhoObjeto = countStream.readInt();
+    //                     byte[] dadosFilmes = new byte[tamanhoObjeto];
+    //                     countStream.readFully(dadosFilmes);
+    //                     totalFilmes++;
+    //                 }
+    //             } catch (IOException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     }
+        
+    //     // Criando o heap com comparador pelo ID do filme
+    //     PriorityQueue<FilmeComStream> heap = new PriorityQueue<>(
+    //         Comparator.comparingInt(f -> f.getFilme() != null ? f.getFilme().getID() : Integer.MAX_VALUE)
+    //     );
+        
+    //     // Arquivo temporário para a saída ordenada
+    //     File arquivoTmp = new File(binarioFile + ".tmp");
+        
+    //     try (RandomAccessFile saida = new RandomAccessFile(arquivoTmp, "rw")) {
+    //         // Escrever o cabeçalho com a contagem total de filmes
+    //         saida.writeInt(totalFilmes);
+            
+    //         // Inicializar o heap com os filmes de cada arquivo temporário
+    //         for (int i = 0; i < numCaminhos; i++) {
+    //             String nomeTemp = "temp" + i + ".dat";
+    //             File tempFile = new File(nomeTemp);
+    //             if (tempFile.exists() && tempFile.length() > 0) {
+    //                 try {
+    //                     FilmeComStream fcs = new FilmeComStream(nomeTemp);
+    //                     if (fcs.getFilme() != null) {
+    //                         heap.add(fcs);
+    //                     } else {
+    //                         fcs.fechar();
+    //                     }
+    //                 } catch (IOException e) {
+    //                     e.printStackTrace();
+    //                 }
+    //             }
+    //         }
+            
+    //         // Processo de intercalação
+    //         while (!heap.isEmpty()) {
+    //             FilmeComStream atual = heap.poll();
+    //             Filmes filme = atual.getFilme();
                 
-
-            }
-
-        }catch (IOException e){
-            System.out.println("Arquivo nao encontrado");
-            e.printStackTrace();
-        }
+    //             if (filme != null) {
+    //                 // Serializar o filme
+    //                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    //                 DataOutputStream dos = new DataOutputStream(bos);
+    //                 filme.writePersonalizado(dos, true);
+    //                 byte[] dadosFilme = bos.toByteArray();
+                    
+    //                 // Escrever o tamanho e os dados do objeto
+    //                 saida.writeInt(dadosFilme.length);
+    //                 saida.write(dadosFilme);
+                    
+    //                 // Avançar para o próximo filme
+    //                 if (atual.avancar() != null) {
+    //                     heap.add(atual);
+    //                 } else {
+    //                     atual.fechar();
+    //                 }
+    //             }
+    //         }
+            
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         return;
+    //     }
+        
+    //     // Substituir o arquivo original pelo arquivo temporário ordenado
+    //     try {
+    //         File arquivoOriginal = new File(binarioFile);
+    //         if (arquivoOriginal.delete() && arquivoTmp.renameTo(arquivoOriginal)) {
+    //             System.out.println("Arquivo ordenado com sucesso!");
+    //         } else {
+    //             System.err.println("Erro ao renomear arquivo temporário para o original.");
+                
+    //             // Se falhar o renomear, tenta copiar manualmente
+    //             try (RandomAccessFile origem = new RandomAccessFile(arquivoTmp, "r");
+    //                  RandomAccessFile destino = new RandomAccessFile(binarioFile, "rw")) {
+                    
+    //                 // Copiar byte a byte
+    //                 destino.setLength(0); // Limpar o arquivo destino
+    //                 byte[] buffer = new byte[8192]; // Buffer de 8KB
+    //                 int bytesRead;
+                    
+    //                 while ((bytesRead = origem.read(buffer)) != -1) {
+    //                     destino.write(buffer, 0, bytesRead);
+    //                 }
+                    
+    //                 System.out.println("Arquivo copiado manualmente com sucesso!");
+    //             } catch (IOException e) {
+    //                 System.err.println("Erro ao copiar arquivo manualmente: " + e.getMessage());
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     } catch (Exception e) {
+    //         System.err.println("Erro ao finalizar ordenação: " + e.getMessage());
+    //         e.printStackTrace();
+    //     } finally {
+    //         // Remover arquivos temporários
+    //         for (int i = 0; i < numCaminhos; i++) {
+    //             File tempFile = new File("temp" + i + ".dat");
+    //             if (tempFile.exists()) {
+    //                 tempFile.delete();
+    //             }
+    //         }
+            
+    //         // Remover arquivo temporário se ainda existir
+    //         File tempFile = new File(binarioFile + ".tmp");
+    //         if (tempFile.exists()) {
+    //             tempFile.delete();
+    //         }
+    //     }
+    // }
 
     }
 
-    public static int[] ordenacaoID(List<Integer> lista){
-
-        int N = lista.size();
-        int M = 0;
-
-        for (int i = 0; i < N; i++) {
-            M = Math.max(M, lista.get(i));
-        }
-
-        int[] countArray = new int[M + 1];
-
-        for (int i = 0; i < N; i++) {
-            countArray[lista.get(i)]++;
-        }
-
-        for (int i = 1; i <= M; i++) {
-            countArray[i] += countArray[i - 1];
-        }
-
-        int[] outputArray = new int[N];
-
-        for (int i = N - 1; i >= 0; i--) {
-            outputArray[countArray[lista.get(i)] - 1] = lista.get(i);
-            countArray[lista.get(i)]--;
-        }
-
-        return outputArray;
-    }
+    
 
     public static void main(String[] args) {
         int opcao;
@@ -1254,7 +1391,16 @@ public class Dados {
 
                 case 7:{
 
-                    Ordenacao(binarioFile, sc);
+                    System.out.println("Digite o numero de arquivos temporarios a serem criados...");
+                    int numCaminhos = sc.nextInt();
+
+                    System.err.println("Digite o numero maximo de registros a serem utilizados");
+                    int maxRegistrosMembers = sc.nextInt();
+
+                    //ordenarArquivo(binarioFile, numCaminhos, maxRegistrosMembers);
+
+
+
                     break;
 
                 }
@@ -1280,7 +1426,7 @@ public class Dados {
     }
 }
 
-class Filmes implements Externalizable{
+class Filmes implements Externalizable, Comparable<Filmes>{
 
     private boolean lapide;
     private int id;
@@ -1421,6 +1567,11 @@ class Filmes implements Externalizable{
     @Override
     public void readExternal(ObjectInput in) throws IOException {}
 
+    @Override
+    public int compareTo(Filmes f) {
+        return Integer.compare(this.id, f.id);
+    }
+
     public void Ler(){
 
         System.out.println("----------------------------------------");
@@ -1514,4 +1665,5 @@ class Filmes implements Externalizable{
     public void setGENERO (String genero){
         this.Genero = genero;
     }
+    
 }
