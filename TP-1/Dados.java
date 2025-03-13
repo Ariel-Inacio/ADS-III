@@ -20,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -311,6 +312,256 @@ public class Dados {
             e.printStackTrace();
         }
     }
+
+    // Função que cria uma Interface de usuario para arulizao o filme
+    public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc){
+
+        int opcaoAtualizar;
+
+        do{
+
+            //previw do objeto
+            novoFilme.Ler();
+
+            //UI para mostrar as opções de atualizacao
+            System.out.println("\t-----------------------------------------");
+            System.out.println("\t1: Atualizar Tipo (TV Show/Movie)");
+            System.out.println("\t2: Atualizar nome");
+            System.out.println("\t3: Atualizar diretor");
+            System.out.println("\t4: Atualizar Pais");
+            System.out.println("\t5: Atualizar data de adição");
+            System.out.println("\t6: Atualizar ano de lancamento");
+            System.out.println("\t7: Atualizar classificacao");
+            System.out.println("\t8: Atualizar duracao");
+            System.out.println("\t9: Atualizar genero");
+            System.out.println("\t0: Confirmar");
+            System.out.println("\t-----------------------------------------");
+
+            opcaoAtualizar = sc.nextInt();
+
+            switch(opcaoAtualizar){
+                case 0:{
+                    // Atualiza todas as informações do filme com base no ID
+                    atualizarFilmeID(IDDesejado, novoFilme, binarioFile);
+                    System.out.println("Atualizando dados...");
+                    break;
+                }
+            
+                case 1:{
+
+                    // Atualiza o tipo do filme (ex: filme, série, documentário)
+                    novoFilme.setTIPO(tipo(sc));
+
+                    sc.nextLine();
+                    //Chama a função que atuliza a duração, com o objetivo de não tem confito entre serie e filmes, pois a duração de filmes e salvo em minutos e a de series em temporadas
+                    novoFilme = atualizarDuracao(novoFilme, sc);
+
+                    System.out.println("Tipo atualizado...");
+                    break;
+                }
+            
+                case 2:{
+                    // Atualiza o nome do filme
+                    sc.nextLine();
+                    System.out.println("Digite o novo nome:");
+                    String nome = sc.nextLine();
+                    novoFilme.setNOME(nome);
+                    System.out.println("Nome atualizado...");
+                    break;
+                }
+            
+                case 3:{
+                    // Atualiza o diretor do filme
+                    sc.nextLine();
+                    System.out.println("Digite o nome do novo diretor:");
+                    String diretor = sc.nextLine();
+                    novoFilme.setDIRETOR(diretor);
+                    System.out.println("Diretor atualizado...");
+                    break;
+                }
+            
+                case 4:{
+                    // Atualiza o país de origem do filme, convertendo a primeira letra para maiúscula e o resto para minuscula   
+                    boolean verificar = false;
+
+                    while(!verificar){
+
+                        sc.nextLine();
+
+                        System.out.println("Digite o nome do novo Pais, em ingles (se o pais for descoconhecido digite \"NOT\"):");
+                        String pais = sc.nextLine();
+                        pais = pais.substring(0,1).toUpperCase() + pais.substring(1).toLowerCase();
+                        
+                        // Pesquisa se o país existe na base de dados binária
+                        pais = PesquisarPaisAbre(binarioPais, pais);
+                        if(pais.equals("NOT")){
+                            System.out.println("Pais nao encontrado...\n\t1: Tentar novamente\n\t2: Manter \"NOT\"");
+                            int opcao;
+
+                            sc.nextLine();
+                            do{
+
+                                opcao = sc.nextInt();
+                            
+                                switch(opcao){
+                                    case 1:{
+                                        continue;
+                                    }
+                                    case 2:{
+                                        novoFilme.setPAIS("NOT");
+                                        verificar = true;
+                                        break;
+                                    }
+                                }
+
+                            }while(opcao != 1);
+
+                        }
+                        else{
+                            novoFilme.setPAIS(pais);
+                            verificar = true;
+                            System.out.println("Pais atualizado...");
+                        }
+
+                    }
+                    
+                    break;
+                }
+            
+                case 5:{
+                    //Atualiza o data de adição
+                    sc.nextLine();
+
+                    String anoAdicao = null;
+                    boolean verificar = false;
+                    DateTimeFormatter format = DateTimeFormatter.ofPattern("M/d/yyyy");
+
+                    while (!verificar){
+                        System.out.println("Digite o novo data de adicao ex: 12/31/2001:");
+                        anoAdicao = sc.nextLine();
+                        //Verifica se o que o usuraio inseriu e uma data valida
+                        verificar = isDataValida(anoAdicao, format);
+                    }
+
+                    LocalDate data = LocalDate.parse(anoAdicao, format);
+                    novoFilme.setANO_ADI(data);
+                    System.out.println("Data de adição atualizado...");
+                    break;
+                   
+                }
+            
+                case 6:{
+                    // Atualiza o ano de lançamento do filme
+                    sc.nextLine();
+                    boolean verificar = false;
+                    String anoLancamento = null;
+
+                    //Verifica se o ano e valido
+                    while (!verificar){
+                        System.out.println("Digite o novo ano de lancamento ex: 2021:");
+                        anoLancamento = sc.nextLine();
+                        verificar = isAnoValido(anoLancamento);
+                    }
+
+                    Year ano = Year.parse(anoLancamento);
+                    novoFilme.setANO_LAN(ano);
+                    System.out.println("Ano de lancamento atualizado...");
+                    
+                    break;
+                }
+            
+                case 7:{
+                    // Atualiza a classificação indicativa do filme
+                    novoFilme.setCLASSIFICACAO(classificacaoIndicativa(sc));
+                    System.out.println("Classificacao atualizada para...");
+                    break;
+                }
+            
+                case 8:{
+                    // Atualiza a duração do filme ou série
+                    sc.nextLine();
+
+                    novoFilme = atualizarDuracao(novoFilme, sc);
+
+                    break;
+                    
+                }
+            
+                case 9:{
+                    // Atualiza o gênero do filme
+                    sc.nextLine();
+                    System.out.println("Digite o novo genero");
+                    String genero = sc.nextLine();
+                    novoFilme.setGENERO(genero);
+                    System.out.println("Genero atualizado...");
+                    break;
+                }
+            
+
+                default: {
+                    System.out.println("Opcao invalida");
+                }
+
+            }
+
+        }while(opcaoAtualizar != 0);
+
+    }
+
+    // Método para atulizar a duracao do objeto
+    public static Filmes atualizarDuracao(Filmes novoFilme, Scanner sc) {
+
+        //If usado para indicar se o objeto for um filme assim informando para o usuario digitar a duracao do filme
+        if(novoFilme.getTIPO().equals("Movie")){
+            System.out.println("Digite a nova duracao do Filme em minutos do filme...");
+            String duracao = sc.nextLine();
+            novoFilme.setDURACAO(duracao + " min");
+            System.out.println("Duracao atualizada...");
+        }
+
+        //If usado para indicar se o objeto for uma serie assim informando para o usuario digitar a quantidades de temporadas
+        else{
+            System.out.println("Digite a nova quantidade de temporadas da Serie...");
+            String duracao = sc.nextLine();
+            novoFilme.setDURACAO(duracao + " Season");
+            System.out.println("Duracao atualizada...");
+        }
+
+        return novoFilme;
+        
+    }
+
+    // Método para verificar se uma data e valida
+    public static boolean isDataValida(String dataStr, DateTimeFormatter formato) {
+        if (dataStr == null || dataStr.trim().isEmpty()) {
+            return false;
+        }
+        
+        try {
+            LocalDate data = LocalDate.parse(dataStr, formato);
+            return true;
+        } catch (DateTimeParseException e) {
+            System.out.println("Data invalida, tente novamente...");
+            return false;
+        }
+    }
+
+    // Método para verificar se um ano é valido
+    public static boolean isAnoValido(String anoStr) {
+        if (anoStr == null) {
+            return false;
+        }
+        
+        try {
+            Year ano = Year.parse(anoStr);
+            
+            // Verifica se o ano está em um intervalo aceitável
+            return (ano.getValue() >= 1900 && ano.getValue() <= 2100);
+        } catch (DateTimeParseException e) {
+            System.out.println("Formato de ano inválido, tente novamente...");
+            return false;
+        }
+    }
     
     //Função para pesquisar a abreviação do pais
     public static String PesquisarPaisAbre(String binarioFilePais, String NomePais){
@@ -343,7 +594,8 @@ public class Dados {
     public static void PesquisarNome(String binarioFile, String NomeDesejado){
         try (RandomAccessFile dis = new RandomAccessFile(binarioFile, "r")){
             int Ultimo = dis.readInt(); // Lê o último ID registrado
-            
+            int encontrado = 0; // Variavel para contar quantos filmes tem o mesmo nome
+
             while (dis.getFilePointer() < dis.length()) {
                 int size = dis.readInt(); // Lê o tamanho do objeto
                 byte[] FilmeBytes = new byte[size];
@@ -358,6 +610,9 @@ public class Dados {
                     System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
                 }
             }
+
+            System.err.println("Foram encontrados " + encontrado + "objetos com esse nome");
+
         } catch (IOException e) {
             System.out.println("Erro de IO: " + e.getMessage());
             e.printStackTrace();
@@ -383,6 +638,9 @@ public class Dados {
                     System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
                 }
             }
+
+            System.err.println("ID não encontrado");
+
         } catch (IOException e) {
             System.out.println("Erro de IO: " + e.getMessage());
             e.printStackTrace();
@@ -390,7 +648,7 @@ public class Dados {
         return null; // Retorna null se o filme não for encontrado
     }
     
-    //Métado para encontrar a quantidade de objetos presentes no arquivo binario
+    //Métado para encontrar o maior ID entre os objetos presentes no arquivo binario
     public static int encontrarTamanho(String arquivo) {
         int quantidade = 0;
         try (RandomAccessFile in = new RandomAccessFile(arquivo, "r")) {
@@ -473,20 +731,23 @@ public class Dados {
     // Método principal para realizar a ordenação externa balanceada
     public static void ordenarExterna(String arquivoBinario, int numCaminhos, int registrosPorBloco) {
         try {
-            // Contagem total de registros no arquivo
+            // Lê o ID do último objeto do cabeçalho
+            int ultimoID = lerUltimoID(arquivoBinario);
+            
+            // Contagem total de registros no arquivo (agora feita percorrendo o arquivo)
             int totalRegistros = contarRegistros(arquivoBinario);
             
             if (totalRegistros <= registrosPorBloco) {
                 // Se o total de registros é menor que o tamanho do bloco, ordenar tudo em memória
-                ordenarArquivoCompleto(arquivoBinario);
+                ordenarArquivoCompleto(arquivoBinario, ultimoID);
                 return;
             }
             
             // Fase de distribuição - divide o arquivo em blocos ordenados
-            List<String> arquivosTemporarios = distribuicao(arquivoBinario, numCaminhos, registrosPorBloco);
+            List<String> arquivosTemporarios = distribuicao(arquivoBinario, numCaminhos, registrosPorBloco, ultimoID);
             
             // Fase de intercalação - une os blocos ordenados
-            String arquivoFinal = intercalacao(arquivosTemporarios, numCaminhos, arquivoBinario + ".ordenado");
+            String arquivoFinal = intercalacao(arquivosTemporarios, numCaminhos, arquivoBinario + ".ordenado", ultimoID);
             
             Files.copy(Paths.get(arquivoFinal), Paths.get(arquivoBinario + ".ordenado"), StandardCopyOption.REPLACE_EXISTING);
             
@@ -502,20 +763,50 @@ public class Dados {
             e.printStackTrace();
         }
     }
-    
-    // Conta o número total de registros no arquivo binário
-    private static int contarRegistros(String arquivoBinario) throws IOException {
+
+    // Lê o ID do último objeto do cabeçalho
+    private static int lerUltimoID(String arquivoBinario) throws IOException {
         try (RandomAccessFile raf = new RandomAccessFile(arquivoBinario, "r")) {
-            // O primeiro inteiro é o contador de registros
+            // O primeiro inteiro é o ID do último objeto
             return raf.readInt();
         }
     }
-    
+
+    // Conta registros percorrendo o arquivo inteiro 
+    private static int contarRegistros(String arquivoBinario) throws IOException {
+        int contador = 0;
+        
+        try (RandomAccessFile raf = new RandomAccessFile(arquivoBinario, "r")) {
+            // Pular o cabeçalho (ID do último objeto)
+            raf.readInt();
+            
+            // Ler cada registro e contar os válidos (sem lápide)
+            while (raf.getFilePointer() < raf.length()) {
+                int size = raf.readInt();
+                byte[] filmeBytes = new byte[size];
+                raf.readFully(filmeBytes);
+                
+                try (ByteArrayInputStream bais = new ByteArrayInputStream(filmeBytes);
+                    ObjectInputStream ois = new ObjectInputStream(bais)) {
+                    
+                    Filmes filme = (Filmes) ois.readObject();
+                    if (!filme.getLAPIDE()) {
+                        contador++;
+                    }
+                } catch (ClassNotFoundException e) {
+                    System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
+                }
+            }
+        }
+        
+        return contador;
+    }
+
     // Ordena todo o arquivo em memória (quando é pequeno o suficiente)
-    private static void ordenarArquivoCompleto(String arquivoBinario) throws IOException {
+    private static void ordenarArquivoCompleto(String arquivoBinario, int ultimoID) throws IOException {
         try (RandomAccessFile in = new RandomAccessFile(arquivoBinario, "r")) {
-            // Ler o contador
-            int totalRegistros = in.readInt();
+            // Pular o ID do último objeto
+            in.readInt();
             
             // Lista para armazenar todos os filmes
             List<Filmes> filmes = new ArrayList<>();
@@ -527,7 +818,7 @@ public class Dados {
                 in.readFully(filmeBytes);
                 
                 try (ByteArrayInputStream bais = new ByteArrayInputStream(filmeBytes);
-                     ObjectInputStream ois = new ObjectInputStream(bais)) {
+                    ObjectInputStream ois = new ObjectInputStream(bais)) {
                     
                     Filmes filme = (Filmes) ois.readObject();
                     if (!filme.getLAPIDE()) {
@@ -543,8 +834,8 @@ public class Dados {
             
             // Escrever de volta para o arquivo
             try (DataOutputStream out = new DataOutputStream(new FileOutputStream(arquivoBinario + ".ordenado"))) {
-                // Escrever o contador
-                out.writeInt(filmes.size());
+                // Escrever o ID do último objeto (preservar o mesmo do arquivo original)
+                out.writeInt(ultimoID);
                 
                 // Escrever cada filme ordenado
                 for (Filmes filme : filmes) {
@@ -566,34 +857,30 @@ public class Dados {
             System.out.println("Arquivo ordenado em memória com sucesso!");
         }
     }
-    
+
     // Fase de distribuição - divide o arquivo em blocos ordenados
-    private static List<String> distribuicao(String arquivoBinario, int numCaminhos, int registrosPorBloco) throws IOException {
+    private static List<String> distribuicao(String arquivoBinario, int numCaminhos, int registrosPorBloco, int ultimoID) throws IOException {
         List<String> arquivosTemporarios = new ArrayList<>();
         
         try (RandomAccessFile raf = new RandomAccessFile(arquivoBinario, "r")) {
-            // Ler o contador de registros
-            int totalRegistros = raf.readInt();
-            
-            // Calcular número de blocos necessários
-            int numBlocos = (int) Math.ceil((double) totalRegistros / registrosPorBloco);
+            // Pular o ID do último objeto
+            raf.readInt();
             
             // Criar arquivos temporários para cada caminho
             for (int i = 0; i < numCaminhos; i++) {
                 String nomeArquivo = arquivoBinario + ".temp" + i;
                 arquivosTemporarios.add(nomeArquivo);
                 
-                // Inicializar arquivo com um contador zerado
+                // Inicializar arquivo apenas com o ID do último objeto
                 try (DataOutputStream out = new DataOutputStream(new FileOutputStream(nomeArquivo))) {
-                    out.writeInt(0); // Contador inicializado com 0
+                    out.writeInt(ultimoID); // Preservar o ID do último objeto
                 }
             }
             
             // Distribuir registros entre os caminhos
             int blocoAtual = 0;
-            int registrosLidos = 0;
             
-            while (raf.getFilePointer() < raf.length() && registrosLidos < totalRegistros) {
+            while (raf.getFilePointer() < raf.length()) {
                 // Determinar qual arquivo temporário usar
                 int caminhoAtual = blocoAtual % numCaminhos;
                 String arquivoTemp = arquivosTemporarios.get(caminhoAtual);
@@ -602,20 +889,18 @@ public class Dados {
                 List<Filmes> bloco = new ArrayList<>();
                 int registrosNoBloco = 0;
                 
-                while (raf.getFilePointer() < raf.length() && registrosNoBloco < registrosPorBloco && registrosLidos < totalRegistros) {
-                    
+                while (raf.getFilePointer() < raf.length() && registrosNoBloco < registrosPorBloco) {
                     int size = raf.readInt();
                     byte[] filmeBytes = new byte[size];
                     raf.readFully(filmeBytes);
                     
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(filmeBytes);
-                         ObjectInputStream ois = new ObjectInputStream(bais)) {
+                        ObjectInputStream ois = new ObjectInputStream(bais)) {
                         
                         Filmes filme = (Filmes) ois.readObject();
                         if (!filme.getLAPIDE()) {
                             bloco.add(filme);
                             registrosNoBloco++;
-                            registrosLidos++;
                         }
                     } catch (ClassNotFoundException e) {
                         System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
@@ -634,35 +919,35 @@ public class Dados {
             return arquivosTemporarios;
         }
     }
-    
+
     // Escreve um bloco ordenado em um arquivo temporário
     private static void escreverBlocoOrdenado(String arquivoTemp, List<Filmes> bloco) throws IOException {
-        // Ler o arquivo temporário para obter o contador atual
-        int contadorAtual = 0;
+        // Ler todo o conteúdo atual do arquivo temporário
+        byte[] conteudoAtual;
+        int ultimoID;
+        
         try (RandomAccessFile raf = new RandomAccessFile(arquivoTemp, "r")) {
-            contadorAtual = raf.readInt();
-        } catch (EOFException e) {
-            // Arquivo vazio, contador será 0
-        }
-        
-        // Criar uma cópia do arquivo com os dados existentes
-        byte[] dadosExistentes = new byte[0];
-        if (contadorAtual > 0) {
-            try (RandomAccessFile raf = new RandomAccessFile(arquivoTemp, "r")) {
-                raf.readInt(); // Pular o contador
-                dadosExistentes = new byte[(int)(raf.length() - 4)];
-                raf.readFully(dadosExistentes);
+            ultimoID = raf.readInt(); // Ler o ID do último objeto
+            if (raf.getFilePointer() < raf.length()) {
+                conteudoAtual = new byte[(int)(raf.length() - 4)]; // 4 bytes para o ID
+                raf.readFully(conteudoAtual);
+            } else {
+                conteudoAtual = new byte[0];
             }
+        } catch (EOFException e) {
+            // Arquivo vazio ou com apenas o cabeçalho
+            System.err.println("Aviso: Arquivo temporário pode estar vazio ou incompleto");
+            return;
         }
         
-        // Escrever os dados de volta junto com o novo bloco
+        // Escrever o conteúdo atualizado no arquivo temporário
         try (DataOutputStream out = new DataOutputStream(new FileOutputStream(arquivoTemp))) {
-            // Atualizar o contador
-            out.writeInt(contadorAtual + bloco.size());
+            // Escrever o ID do último objeto
+            out.writeInt(ultimoID);
             
             // Escrever os dados existentes
-            if (dadosExistentes.length > 0) {
-                out.write(dadosExistentes);
+            if (conteudoAtual.length > 0) {
+                out.write(conteudoAtual);
             }
             
             // Escrever o novo bloco
@@ -682,9 +967,9 @@ public class Dados {
             }
         }
     }
-    
+
     // Fase de intercalação - une os blocos ordenados
-    private static String intercalacao(List<String> arquivosTemporarios, int numCaminhos, String arquivoFinal) throws IOException {
+    private static String intercalacao(List<String> arquivosTemporarios, int numCaminhos, String arquivoFinal, int ultimoID) throws IOException {
         // Se só há um arquivo temporário, ele já está ordenado
         if (arquivosTemporarios.size() == 1) {
             return arquivosTemporarios.get(0);
@@ -696,9 +981,9 @@ public class Dados {
             String novoArquivo = arquivoFinal + ".intercalacao" + i;
             novosArquivos.add(novoArquivo);
             
-            // Inicializar com contador zerado
+            // Inicializar apenas com o ID do último objeto
             try (DataOutputStream out = new DataOutputStream(new FileOutputStream(novoArquivo))) {
-                out.writeInt(0); // Contador inicializado com 0
+                out.writeInt(ultimoID); // ID do último objeto
             }
         }
         
@@ -712,7 +997,7 @@ public class Dados {
             
             // Intercalar este grupo para um arquivo de saída
             String arquivoSaida = novosArquivos.get(i / numCaminhos);
-            intercalarGrupo(grupoArquivos, arquivoSaida);
+            intercalarGrupo(grupoArquivos, arquivoSaida, ultimoID);
             
             // Limpar os arquivos que já foram intercalados
             for (String arquivo : grupoArquivos) {
@@ -722,17 +1007,17 @@ public class Dados {
         
         // Recursivamente continuar a intercalação até que reste apenas um arquivo
         if (novosArquivos.size() > 1) {
-            return intercalacao(novosArquivos, numCaminhos, arquivoFinal);
+            return intercalacao(novosArquivos, numCaminhos, arquivoFinal, ultimoID);
         } else {
             return novosArquivos.get(0);
         }
     }
-    
+
     // Intercala um grupo de arquivos em um único arquivo de saída
-    private static void intercalarGrupo(List<String> arquivos, String arquivoSaida) throws IOException {
+    private static void intercalarGrupo(List<String> arquivos, String arquivoSaida, int ultimoID) throws IOException {
         // Preparar os leitores para cada arquivo
         List<RandomAccessFile> leitores = new ArrayList<>();
-        List<Integer> contadores = new ArrayList<>();
+        List<Filmes> proximosFilmes = new ArrayList<>();
         
         // Heap para manter o próximo filme de cada arquivo
         PriorityQueue<FilmeComOrigem> heap = new PriorityQueue<>();
@@ -743,55 +1028,57 @@ public class Dados {
                 RandomAccessFile raf = new RandomAccessFile(arquivos.get(i), "r");
                 leitores.add(raf);
                 
-                // Ler o contador
-                int contador = raf.readInt();
-                contadores.add(contador);
+                // Pular o ID do último objeto
+                raf.readInt();
                 
-                // Se houver registros, adicionar o primeiro ao heap
-                if (contador > 0 && raf.getFilePointer() < raf.length()) {
+                // Tenta ler o primeiro filme
+                if (raf.getFilePointer() < raf.length()) {
                     int size = raf.readInt();
                     byte[] filmeBytes = new byte[size];
                     raf.readFully(filmeBytes);
                     
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(filmeBytes);
-                         ObjectInputStream ois = new ObjectInputStream(bais)) {
+                        ObjectInputStream ois = new ObjectInputStream(bais)) {
                         
                         Filmes filme = (Filmes) ois.readObject();
-
-                        //Adicina um filme ao heap se não houver lapide
+                        proximosFilmes.add(filme);
+                        
+                        // Adiciona um filme ao heap se não houver lápide
                         if (!filme.getLAPIDE()) {
                             heap.add(new FilmeComOrigem(filme, i));
                         }
                     } catch (ClassNotFoundException e) {
                         System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
+                        proximosFilmes.add(null); // Placeholder para manter índices sincronizados
                     }
+                } else {
+                    proximosFilmes.add(null); // Não há mais filmes neste arquivo
                 }
             }
             
-            // Calcular o total de registros
-            int totalRegistros = contadores.stream().mapToInt(Integer::intValue).sum();
-            
-            // Ler o contador atual do arquivo de saída
-            int contadorSaida = 0;
+            // Ler o conteúdo atual do arquivo de saída
+            byte[] conteudoAtual;
             try (RandomAccessFile raf = new RandomAccessFile(arquivoSaida, "r")) {
-                contadorSaida = raf.readInt();
+                raf.readInt(); // Pular o ID do último objeto
+                if (raf.getFilePointer() < raf.length()) {
+                    conteudoAtual = new byte[(int)(raf.length() - 4)]; // 4 bytes para o ID
+                    raf.readFully(conteudoAtual);
+                } else {
+                    conteudoAtual = new byte[0];
+                }
             } catch (EOFException e) {
-                // Arquivo vazio, contador será 0
+                // Arquivo vazio ou só com cabeçalho
+                conteudoAtual = new byte[0];
             }
             
             // Preparar o arquivo de saída
             try (DataOutputStream out = new DataOutputStream(new FileOutputStream(arquivoSaida))) {
-                // Escrever o contador atualizado
-                out.writeInt(contadorSaida + totalRegistros);
+                // Escrever o ID do último objeto
+                out.writeInt(ultimoID);
                 
-                // Copiar os dados existentes (se houver)
-                if (contadorSaida > 0) {
-                    try (RandomAccessFile raf = new RandomAccessFile(arquivoSaida, "r")) {
-                        raf.readInt(); // Pular o contador
-                        byte[] dadosExistentes = new byte[(int)(raf.length() - 4)];
-                        raf.readFully(dadosExistentes);
-                        out.write(dadosExistentes);
-                    }
+                // Escrever os dados existentes
+                if (conteudoAtual.length > 0) {
+                    out.write(conteudoAtual);
                 }
                 
                 // Intercalar os registros
@@ -823,11 +1110,11 @@ public class Dados {
                         raf.readFully(filmeBytes);
                         
                         try (ByteArrayInputStream bais = new ByteArrayInputStream(filmeBytes);
-                             ObjectInputStream ois = new ObjectInputStream(bais)) {
+                            ObjectInputStream ois = new ObjectInputStream(bais)) {
                             
                             filme = (Filmes) ois.readObject();
-
-                            //Adicina um filme ao heap se não houver lapide
+                            
+                            // Adiciona um filme ao heap se não houver lápide
                             if (!filme.getLAPIDE()) {
                                 heap.add(new FilmeComOrigem(filme, origem));
                             }
@@ -848,7 +1135,7 @@ public class Dados {
             }
         }
     }
-    
+
     // Classe auxiliar para manter o filme junto com sua origem
     private static class FilmeComOrigem implements Comparable<FilmeComOrigem> {
         private final Filmes filme;
@@ -991,146 +1278,11 @@ public class Dados {
 
                     //Se o objeto existir
                     if(novoFilme != null){
-
-                        //Previw do objeto
-                        novoFilme.Ler();
-                        int opcaoAtualizar;
-
-                        do{
-
-                            //UI para mostrar as opções de atualizacao
-                            System.out.println("\t-----------------------------------------");
-                            System.out.println("\t1: Atualizar Tipo (TV Show/Movie)");
-                            System.out.println("\t2: Atualizar nome");
-                            System.out.println("\t3: Atualizar diretor");
-                            System.out.println("\t4: Atualizar Pais");
-                            System.out.println("\t5: Atualizar ano de adicao");
-                            System.out.println("\t6: Atualizar ano de lancamento");
-                            System.out.println("\t7: Atualizar classificacao");
-                            System.out.println("\t8: Atualizar duracao");
-                            System.out.println("\t9: Atualizar genero");
-                            System.out.println("\t0: Confirmar atualizacao");
-                            System.out.println("\t-----------------------------------------");
-
-                            opcaoAtualizar = sc.nextInt();
-
-                            switch(opcaoAtualizar){
-                                case 0:{
-                                    // Atualiza todas as informações do filme com base no ID
-                                    atualizarFilmeID(IDDesejado, novoFilme, binarioFile);
-                                    System.out.println("Atualizando dados...");
-                                    break;
-                                }
-                            
-                                case 1:{
-                                    // Atualiza o tipo do filme (ex: filme, série, documentário)
-                                    novoFilme.setTIPO(tipo(sc));    
-                                    System.out.println("Tipo atualizado...");
-                                    break;
-                                }
-                            
-                                case 2:{
-                                    // Atualiza o nome do filme
-                                    sc.nextLine();
-                                    System.out.println("Digite o novo nome:");
-                                    String nome = sc.nextLine();
-                                    novoFilme.setNOME(nome);
-                                    System.out.println("Nome atualizado...");
-                                    break;
-                                }
-                            
-                                case 3:{
-                                    // Atualiza o diretor do filme
-                                    sc.nextLine();
-                                    System.out.println("Digite o nome do novo diretor:");
-                                    String diretor = sc.nextLine();
-                                    novoFilme.setDIRETOR(diretor);
-                                    System.out.println("Diretor atualizado...");
-                                    break;
-                                }
-                            
-                                case 4:{
-                                    // Atualiza o país de origem do filme, convertendo a primeira letra para maiúscula
-                                    sc.nextLine();
-                                    System.out.println("Digite o nome do novo pais (Em ingles):");
-                                    String pais = sc.nextLine();
-                                    pais = pais.substring(0,1).toUpperCase() + pais.substring(1);
-                                    
-                                    // Pesquisa se o país existe na base de dados binária
-                                    pais = PesquisarPaisAbre(binarioPais, pais);
-                                    if(pais.equals("NOT")){
-                                        System.out.println("Pais nao encontrado, tente novamente caso deseja adicinar um pais...");
-                                    }
-                                    else{
-                                        novoFilme.setPAIS(pais);
-                                        System.out.println("Pais atualizado...");
-                                    }
-                                    break;
-                                }
-                            
-                                case 5:{
-                                    // Atualiza a data de adição do filme no formato "yyyy/M/d"
-                                    sc.nextLine();
-                                    System.out.println("Digite o novo ano de adicao ex: 2001/5/28:");
-                                    String anoAdicao = sc.nextLine();
-                                    DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/M/d");
-                                    LocalDate data = LocalDate.parse(anoAdicao, format);
-                                    novoFilme.setANO_ADI(data);
-                                    System.out.println("Ano de adicao atualizado...");
-                                    break;
-                                }
-                            
-                                case 6:{
-                                    // Atualiza o ano de lançamento do filme
-                                    sc.nextLine();
-                                    System.out.println("Digite o novo ano de lancamento ex: 2021:");
-                                    String anoLancamento = sc.nextLine();
-                                    Year ano = Year.parse(anoLancamento);
-                                    novoFilme.setANO_LAN(ano);
-                                    System.out.println("Ano de lancamento atualizado...");
-                                    break;
-                                }
-                            
-                                case 7:{
-                                    // Atualiza a classificação indicativa do filme
-                                    novoFilme.setCLASSIFICACAO(classificacaoIndicativa(sc));
-                                    System.out.println("Classificacao atualizada para...");
-                                    break;
-                                }
-                            
-                                case 8:{
-                                    // Atualiza a duração do filme ou série (ex: "120 min" para filmes ou "2 Season" para séries)
-                                    sc.nextLine();
-                                    System.out.println("Digite a nova duracao do Filme/Serie (Para digite para cada situacao de acordo com nos exemplos: 120 min (para filmes)/ 2 Season (para series))");
-                                    String duracao = sc.nextLine();
-                                    novoFilme.setDURACAO(duracao);
-                                    System.out.println("Duracao atualizada...");
-                                    break;
-                                }
-                            
-                                case 9:{
-                                    // Atualiza o gênero do filme
-                                    sc.nextLine();
-                                    System.out.println("Digite o novo genero");
-                                    String genero = sc.nextLine();
-                                    novoFilme.setGENERO(genero);
-                                    System.out.println("Genero atualizado...");
-                                    break;
-                                }
-                            
-
-                                default: {
-                                    System.out.println("Opcao invalida");
-                                }
-
-                            }
-
-                        }while(opcaoAtualizar != 0);
+                        
+                        atualizarUI(IDDesejado, binarioFile, binarioPais, novoFilme, sc);
 
                         //Mostra um previw do objeto atualizado
                         novoFilme.Ler();
-                        //atulizao o objeto
-                        atualizarFilmeID(IDDesejado,novoFilme ,binarioFile);
 
                     }
 
@@ -1158,218 +1310,133 @@ public class Dados {
                 case 6:{
                     // Adiciona um novo filme ao arquivo binário
                     try(RandomAccessFile in = new RandomAccessFile(binarioFile, "rw")){
+                        //Encontra qual sera o ID do proximo Filme;
                         int ID = (encontrarTamanho(binarioFile)) + 1;
                         int opcaoAdicinar;
                         List<String> lista = new ArrayList<>();
                 
+                        // Adiciona um ID temporario para a lista, devido a forma como a leitura de objeto e feita
                         lista.add("1");
+
+                        // Adiciona o tipo do objeto (filme ou serie)
                         lista.add(tipo(sc));
                 
+                        // Adiciona o nome do objeto
                         sc.nextLine();
                         System.out.println("\tDigite o nome: ");
                         String nome = sc.nextLine();
                         lista.add(nome);
                 
+                        // Adicina o diretor do objeto
                         System.out.println("\tDigite o diretor: ");
                         String diretor = sc.nextLine();
                         lista.add(diretor);
                 
-                        System.out.println("\tDigite o pais (em ingles): ");
-                        String pais = sc.nextLine();
-                        pais = pais.substring(0,1).toUpperCase() + pais.substring(1); 
-                        pais = PesquisarPaisAbre(binarioPais, pais);
-                        lista.add(pais);
+                        // Adiciona o pais do objeto
+                        boolean verificar = false;
+                        while(!verificar){
+
+                            System.out.println("\tDigite o nome Pais, em ingles (se o pais for descoconhecido digite \"NOT\"):");
+                            String pais = sc.nextLine();
+                            pais = pais.substring(0,1).toUpperCase() + pais.substring(1).toLowerCase();
+                            
+                            // Pesquisa se o país existe na base de dados binária
+                            pais = PesquisarPaisAbre(binarioPais, pais);
+                            if(pais.equals("NOT")){
+                                System.out.println("\tPais nao encontrado...\n\t1: Tentar novamente\n\t2: Manter \"NOT\"");
+                                int opcaoPais;
+
+                                sc.nextLine();
+                                do{
+
+                                    opcaoPais = sc.nextInt();
+                                
+                                    switch(opcaoPais){
+                                        case 1:{
+                                            continue;
+                                        }
+                                        case 2:{
+                                            lista.add("NOT");
+                                            verificar = true;
+                                            break;
+                                        }
+                                    }
+
+                                }while(opcaoPais != 1);
+
+                            }
+                            else{
+                                lista.add(pais);
+                                verificar = true;
+                            }
+
+                        }
                 
-                        System.out.println("\tDigite o novo ano de adicao ex: 2001/5/28:");
-                        String anoAdicao = sc.nextLine();
+                        // Adiciona a data de adição do objeto
+                        String anoAdicao = null;
+                        verificar = false;
+                        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/M/d");
+                        while (!verificar){
+                            System.out.println("\tDigite a data de adição ex: 2001/5/28:");
+                            anoAdicao = sc.nextLine();
+                            //Verifica se o que o usuraio inseriu e uma data valida
+                            verificar = isDataValida(anoAdicao, format);
+                        }
                         lista.add(anoAdicao);
                 
-                        System.out.println("\tDigite o ano de lancamento ex: 2021: ");
-                        String anoLancamento = sc.nextLine();
+                        // Adiciona a o ano de lançamento do objeto
+                        verificar = false;
+                        String anoLancamento = null;
+                        //Verifica se o ano e valido
+                        while (!verificar){
+                            System.out.println("\tDigite o ano de lancamento ex: 2021:");
+                            anoLancamento = sc.nextLine();
+                            verificar = isAnoValido(anoLancamento);
+                        }
                         lista.add(anoLancamento);
                 
+                        // Adiciona a classificação indicativa do objeto
                         lista.add(classificacaoIndicativa(sc));
                 
+                        // Adiciona a duração do objeto
                         sc.nextLine();
-                        System.out.println("\tDigite a duracao do Filme/Serie (120 min para filmes / 2 Season para séries)");
-                        String duracao = sc.nextLine();
-                        lista.add(duracao);
+
+                        if(lista.get(1).equals("Movie")){
+                            System.out.println("\tDigite a durção do Filme em minutos do filme...");
+                            String duracao = sc.nextLine();
+                            lista.add(duracao + " min");
+                        }
+                        //If usado para indicar se o objeto for uma serie assim informando para o usuario digitar a quantidades de temporadas
+                        else{
+                            System.out.println("\tDigite a quantidade de temporadas da Serie...");
+                            String duracao = sc.nextLine();
+                            lista.add(duracao + " Season");
+                        }
                 
+                        // Adiciona o genero do objeto
                         System.out.println("\tDigite o genero: ");
                         String genero = sc.nextLine();
                         lista.add(genero);
                 
+                        //Cria o objeto
                         Filmes novoFilme = new Filmes(lista, ID, true);
+                        //Preview do objeto antes de adicionar
                         System.out.println("Preview");
-                        novoFilme.Ler();
+
+                        //Escreve o objeto no arquivo binario
+                        in.seek(0);
+                        in.writeInt(novoFilme.getID());
+                        in.seek(in.length());          
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+                            oos.writeObject(novoFilme);
+                        }
+                        byte[] bytes = baos.toByteArray();
+                        in.writeInt(bytes.length);
+                        in.write(bytes);
                 
                         // Permite edição antes de confirmar a adição
-                        do{
-                            System.out.println("\t-----------------------------------------");
-                            System.out.println("\t1: Mudar Tipo (TV Show/Movie)");
-                            System.out.println("\t2: Mudar nome");
-                            System.out.println("\t3: Mudar diretor");
-                            System.out.println("\t4: Mudar Pais");
-                            System.out.println("\t5: Mudar ano de adicao");
-                            System.out.println("\t6: Mudar ano de lancamento");
-                            System.out.println("\t7: Mudar classificacao");
-                            System.out.println("\t8: Mudar duracao");
-                            System.out.println("\t9: Mudar genero");
-                            System.out.println("\t0: Confirmar");
-                            System.out.println("\t-----------------------------------------");
-                            
-                            opcaoAdicinar = sc.nextInt();
-                
-                            switch(opcaoAdicinar){
-                                case 0:{
-                                    in.seek(0);
-                                    in.writeInt(novoFilme.getID());
-                
-                                    in.seek(in.length());
-                                    
-                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                    try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                                        oos.writeObject(novoFilme);
-                                    }
-                
-                                    byte[] bytes = baos.toByteArray();
-                                    in.writeInt(bytes.length);
-                                    in.write(bytes);
-                                    
-                                    System.out.println("Atualizando dados...");
-                                    break;
-                                }
-                                case 1:{
-                                    // Permite ao usuário mudar o tipo do filme (TV Show ou Movie)
-                                    System.out.println("\t1: TV Show");
-                                    System.out.println("\t2: Movie");
-                                    boolean verificar = false;
-                                    do {
-                                        int tipo = sc.nextInt();
-                                        switch(tipo){
-                                            case 1:
-                                                novoFilme.setTIPO("TV Show");
-                                                System.out.println("Tipo atualizado para TV Show...");
-                                                verificar = true;
-                                                break;
-                                            case 2:
-                                                novoFilme.setTIPO("Movie");
-                                                System.out.println("Tipo atualizado para Movie...");
-                                                verificar = true;
-                                                break;
-                                            default:
-                                                System.out.println("\tOpcao invalida");
-                                        } 
-                                    } while (!verificar);
-                                    break;
-                                }
-                                case 2: {
-                                    // Atualiza o nome do filme
-                                    sc.nextLine();
-                                    System.out.println("Digite o novo nome:");
-                                    nome = sc.nextLine();
-                                    novoFilme.setNOME(nome);
-                                    System.out.println("Nome atualizado...");
-                                    break;
-                                }
-                                case 3: {
-                                    // Atualiza o diretor
-                                    sc.nextLine();
-                                    System.out.println("Digite o nome do novo diretor:");
-                                    diretor = sc.nextLine();
-                                    novoFilme.setDIRETOR(diretor);
-                                    System.out.println("Diretor atualizado...");
-                                    break;
-                                }
-                                case 4: {
-                                    // Atualiza o país
-                                    sc.nextLine();
-                                    System.out.println("Digite o nome do novo pais (Em ingles):");
-                                    pais = sc.nextLine();
-                                    pais = pais.substring(0,1).toUpperCase() + pais.substring(1); 
-                                    pais = PesquisarPaisAbre(binarioPais, pais);
-                                    if(pais.equals("NOT")){
-                                        System.out.println("Pais nao encontrado, tente novamente...");
-                                    }
-                                    else{
-                                        novoFilme.setPAIS(pais);
-                                        System.out.println("Pais atualizado...");
-                                    }
-                                    break;
-                                }
-
-                                case 5:{
-
-                                    //Atualiza o data de adicao
-                                    sc.nextLine();
-
-                                    System.out.println("Digite o novo data de adicao ex: 12/31/2001:");
-                                    anoAdicao = sc.nextLine();
-                                    DateTimeFormatter format = DateTimeFormatter.ofPattern("M/d/yyyy");
-                                    LocalDate data = LocalDate.parse(anoAdicao, format);
-                                    novoFilme.setANO_ADI(data);
-                                    System.out.println("Ano de adicao atualizado...");
-                                    break;
-
-                                }
-
-                                case 6:{
-
-                                    //Atauliza o ano de lançamento
-                                    sc.nextLine();
-
-                                    System.out.println("Digite o novo ano de lancamento ex: 2021:");
-                                    anoLancamento = sc.nextLine();
-                                    Year ano = Year.parse(anoLancamento);
-                                    novoFilme.setANO_LAN(ano);
-                                    System.out.println("Ano de lancamento atualizado...");
-                                    break;
-
-                                }
-
-                                case 7:{
-
-                                    //Atulaiza a classificação indicativa
-                                    novoFilme.setCLASSIFICACAO(classificacaoIndicativa(sc));
-                                    break;
-
-                                }
-
-                                case 8:{
-
-                                    //Atualiza a duracao do filme/serie
-                                    sc.nextLine();
-
-                                    System.out.println("Digite a nova duracao do Filme/Serie (Para digite para cada situacao de acordo com nos exemplos: 120 min (para filmes)/ 2 Season (para series))");
-                                    duracao = sc.nextLine();
-
-                                    novoFilme.setDURACAO(duracao);
-                                    System.out.println("Duracao atualizada...");
-                                    break;
-
-                                }
-
-                                case 9:{
-
-                                    //Atualiza o genero
-                                    sc.nextLine();
-
-                                    System.out.println("Digite o novo genero");
-                                    genero = sc.nextLine();
-
-                                    novoFilme.setGENERO(genero);
-                                    System.out.println("Genero atualizado...");
-                                    break;
-
-                                }
-
-                                default: {
-                                    System.out.println("Opcao invalida");
-                                }
-
-                            }
-
-                        }while(opcaoAdicinar != 0);
+                        atualizarUI(ID, binarioFile, binarioPais, novoFilme, sc);
 
                     }catch (IOException e){
                         System.out.println("Arquivo nao encontrado");
@@ -1385,20 +1452,18 @@ public class Dados {
                     //Inicia a ordenação externa balanceada do arquivo
                     try{
 
-
+                        //Pede para o usuario incira o numero de arquivos temporarios que serão utilizados
                         int numCaminhos;
-
                         System.out.println("Digite o numero de caminhos para a ordenação");
-
+                        //Delimita a quantidade de arquivos
                         while((numCaminhos = sc.nextInt()) > 100){
                             System.out.println("Numero de caminhos muito grande (numero maximo 100)");
                         }
  
+                        //Pede para o usuario incira o blocos que serão utilizados
                         int Blocos;
-
                         System.out.println("Digite o numero de registros máximo para cada ordenação em memória primária");
-
-
+                        //Delimita a quantidade de blocos
                         while((Blocos = sc.nextInt()) > 1000){
                             System.out.println("Numero de registros maximo muito grande (numero maximo 1000)");
                         }
@@ -1457,7 +1522,7 @@ class Filmes implements Externalizable, Comparable<Filmes>{
     public Filmes(){}
 
     public Filmes(List<String> lista, int tmp, Boolean formasFormatacao) {
-        // Define o formato da data com base na opção fornecida
+        // Define o formato da data com base na opção foramasFormatacao que e fornecia de acordo com a funcao que que instancia esta
         DateTimeFormatter format;
         if (formasFormatacao) {
             format = DateTimeFormatter.ofPattern("yyyy/M/d");
