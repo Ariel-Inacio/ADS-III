@@ -1172,7 +1172,7 @@ public class Dados {
 
             //UI que mostrar as opçoes que o codigo pode realizar
             System.out.println("\t----Opcoes----");
-            System.out.println("\t1: Ler arquivo CSV");
+            System.out.println("\t1: Ler arquivo CSV e escrever em binario (As demais oções podem da erro se não existir um arquivo binario)");
             System.out.println("\t2: Ler arquivo BINARO");
             System.out.println("\t3: Pesquisar Filme/Serie");
             System.out.println("\t4: Atualizar Filme/Serie");
@@ -1188,6 +1188,15 @@ public class Dados {
 
                 //Converte o arquivo CSV para binario
                 case 1:{
+
+                    //limpa buffer
+                    sc.nextLine();
+
+                    System.out.print("Digite o nome do arquivo Binario em que deseja salvar: ");
+                    binarioFile = sc.nextLine().trim();
+
+                    System.out.print("Digite o nome do arquivo CSV que deseja ler: ");
+                    file = sc.nextLine().trim();
 
                     IniciarArquivoCSV(file, binarioFile, binarioPais, file2);
                     break;
@@ -1474,8 +1483,8 @@ public class Dados {
                         Files.copy(Paths.get("binario.bin.ordenado"), Paths.get(binarioFile), StandardCopyOption.REPLACE_EXISTING);
 
                         //Apago o arquivo ordenado e o arquivo TEMP de intercalação
-                        Files.deleteIfExists(Paths.get("binario.bin.ordenado"));
-                        Files.deleteIfExists(Paths.get("binario.bin.ordenado.intercalacao0"));
+                        Files.deleteIfExists(Paths.get(binarioFile + ".ordenado"));
+                        Files.deleteIfExists(Paths.get(binarioFile + ".ordenado.intercalacao0"));
                     }catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1654,15 +1663,15 @@ class Filmes implements Externalizable, Comparable<Filmes>{
         // Exibe os dados do filme
         System.out.println("----------------------------------------");
         System.out.println("ID: " + id);
-        System.out.println("Nome: " + nome);
+        System.out.println("Nome: " + nome.trim());
         System.out.println("Ano de Lancamento: " + ano_lan);
         System.out.println("Data de Adicao: " + ano_adi);
-        System.out.println("Duração: " + duracao);
-        System.out.println("Diretor: " + diretor);
-        System.out.println("Pais: " + pais);
-        System.out.println("Gênero: " + Genero);
-        System.out.println("Tipo: " + tipo);
-        System.out.println("Faixa Etaria: " + classificacao);
+        System.out.println("Duração: " + duracao.trim());
+        System.out.println("Diretor: " + diretor.trim());
+        System.out.println("Pais: " + pais.trim());
+        System.out.println("Gênero: " + Genero.trim());
+        System.out.println("Tipo: " + tipo.trim());
+        System.out.println("Faixa Etaria: " + classificacao.trim());
         System.out.println("----------------------------------------");
     }
     public boolean getLAPIDE(){
