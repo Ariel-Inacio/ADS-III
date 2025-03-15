@@ -383,44 +383,43 @@ public class Dados {
                 case 4:{
                     // Atualiza o país de origem do filme, convertendo a primeira letra para maiúscula e o resto para minuscula   
                     boolean verificar = false;
+                    boolean sairLoop = false;
+                    sc.nextLine();
+                    while(!verificar && !sairLoop){
 
-                    while(!verificar){
-
-                        sc.nextLine();
-
-                        System.out.println("Digite o nome do novo Pais, em ingles (se o pais for descoconhecido digite \"NOT\"):");
+                        System.out.println("\tDigite o nome do novo Pais, em ingles (se o pais for descoconhecido digite \"NOT\"):");
                         String pais = sc.nextLine();
                         pais = pais.substring(0,1).toUpperCase() + pais.substring(1).toLowerCase();
-                        
+                            
                         // Pesquisa se o país existe na base de dados binária
                         pais = PesquisarPaisAbre(binarioPais, pais);
                         if(pais.equals("NOT")){
-                            System.out.println("Pais nao encontrado...\n\t1: Tentar novamente\n\t2: Manter \"NOT\"");
-                            int opcao;
+                            System.out.println("\tPais nao encontrado...\n\t1: Tentar novamente\n\t2: Manter \"NOT\"");
+                            int opcaoPais;
 
-                            sc.nextLine();
                             do{
-
-                                opcao = sc.nextInt();
-                            
-                                switch(opcao){
+                                opcaoPais = sc.nextInt();
+                                
+                                switch(opcaoPais){
                                     case 1:{
-                                        continue;
+                                        sc.nextLine(); // Limpar o buffer
+                                        break;
                                     }
                                     case 2:{
                                         novoFilme.setPAIS("NOT");
                                         verificar = true;
+                                        sairLoop = true;
+                                        sc.nextLine();
                                         break;
                                     }
                                 }
 
-                            }while(opcao != 1);
+                            }while(opcaoPais != 1 && opcaoPais != 2);
 
                         }
                         else{
                             novoFilme.setPAIS(pais);
                             verificar = true;
-                            System.out.println("Pais atualizado...");
                         }
 
                     }
@@ -1172,7 +1171,7 @@ public class Dados {
 
             //UI que mostrar as opçoes que o codigo pode realizar
             System.out.println("\t----Opcoes----");
-            System.out.println("\t1: Ler arquivo CSV e escrever em binario (As demais oções podem da erro se não existir um arquivo binario)");
+            System.out.println("\t1: Ler arquivo CSV e escrever em binario (As demais opções podem da erro se não existir um arquivo binario)");
             System.out.println("\t2: Ler arquivo BINARO");
             System.out.println("\t3: Pesquisar Filme/Serie");
             System.out.println("\t4: Atualizar Filme/Serie");
@@ -1191,12 +1190,6 @@ public class Dados {
 
                     //limpa buffer
                     sc.nextLine();
-
-                    System.out.print("Digite o nome do arquivo Binario em que deseja salvar: ");
-                    binarioFile = sc.nextLine().trim();
-
-                    System.out.print("Digite o nome do arquivo CSV que deseja ler: ");
-                    file = sc.nextLine().trim();
 
                     IniciarArquivoCSV(file, binarioFile, binarioPais, file2);
                     break;
@@ -1343,7 +1336,8 @@ public class Dados {
                 
                         // Adiciona o pais do objeto
                         boolean verificar = false;
-                        while(!verificar){
+                        boolean sairLoop = false;
+                        while(!verificar && !sairLoop){
 
                             System.out.println("\tDigite o nome Pais, em ingles (se o pais for descoconhecido digite \"NOT\"):");
                             String pais = sc.nextLine();
@@ -1355,23 +1349,24 @@ public class Dados {
                                 System.out.println("\tPais nao encontrado...\n\t1: Tentar novamente\n\t2: Manter \"NOT\"");
                                 int opcaoPais;
 
-                                sc.nextLine();
                                 do{
-
                                     opcaoPais = sc.nextInt();
                                 
                                     switch(opcaoPais){
                                         case 1:{
-                                            continue;
+                                            sc.nextLine(); // Limpar o buffer
+                                            break;
                                         }
                                         case 2:{
                                             lista.add("NOT");
                                             verificar = true;
+                                            sairLoop = true;
+                                            sc.nextLine();
                                             break;
                                         }
                                     }
 
-                                }while(opcaoPais != 1);
+                                }while(opcaoPais != 1 && opcaoPais != 2);
 
                             }
                             else{
