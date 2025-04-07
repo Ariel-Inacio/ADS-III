@@ -1262,7 +1262,7 @@ public class Dados {
                             
                             System.out.print("Resposta: ");
                             for (int i = 0; i < lista.size(); i++)
-                            System.out.print(lista.get(i) + " ");
+                            System.out.print(lista.get(i) + "\n");
 
                             n1++;
 
