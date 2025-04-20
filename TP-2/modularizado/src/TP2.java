@@ -128,14 +128,14 @@ public class TP2 {
 
                 }
 
-                //Pesquisa um filme/serie pelo ID ou nome
+                //Pesquisa um filme/serie
                 case 3:{                                                                                                                                                                                                                                                                        
 
                     Filmes filmePesquisa = new Filmes();
 
                     if(index == 1){
 
-                        System.out.println("\tDigite o ID do filme/serie:");
+                        System.out.println("\tDigite o ID do Filme/Serie:");
                         int IDDesejado = sc.nextInt();
 
                         filmePesquisa = Pesquisar.PesquisarIDArvore(binarioFile, IDDesejado, arvore);
@@ -148,7 +148,7 @@ public class TP2 {
 
                     else if(index == 2){
 
-                        System.out.println("\tDigite o ID do filme/serie:");
+                        System.out.println("\tDigite o ID do Filme/Serie:");
                         int IDDesejado = sc.nextInt();
 
                         //Pesquisar.PesquisaHasing(sc);
@@ -157,7 +157,7 @@ public class TP2 {
 
                     else if(index == 3){
 
-                       ArrayList<Long> posicoes = Menus.tipoPesquisaLista(sc,tmp, lista1, lista2);
+                       ArrayList<Long> posicoes = Menus.tipoMenuLista(sc,tmp, lista1, lista2, binarioPais);
 
                        for(int i = 0; i < posicoes.size(); i++){
                             filmePesquisa = Pesquisar.ListaFilmes(posicoes.get(i), binarioFile);
@@ -184,7 +184,7 @@ public class TP2 {
                     //Se o objeto existir
                     if(novoFilme != null){
                         
-                        uiAtualizacao.atualizarUI(IDDesejado, binarioFile, binarioPais, novoFilme, sc, arvore);
+                        uiAtualizacao.atualizarUI(IDDesejado, binarioFile, binarioPais, novoFilme, sc, arvore, index);
 
                         //Mostra um preview do objeto atualizado
                         novoFilme.Ler();
@@ -192,24 +192,142 @@ public class TP2 {
                     }
 
                     else{
-                        System.out.println("Filme não encontrado!");
+                        System.out.println("Filme/Serie não encontrado!");
                     }
                     break;
 
                 }
 
+                // Remove um filme/serie com base no ID informado pelo usuário
                 case 5:{
-                    // Remove um filme com base no ID informado pelo usuário
-                    System.out.println("Digite o ID do Filme desejado para remover");
-                    int IDDesejado = sc.nextInt();
-                    Filmes novoFilme = Pesquisar.PesquisarIDArvore(binarioFile, IDDesejado, arvore);
-                
-                    if(novoFilme != null && arvore != null){
-                        novoFilme.setLAPIDE(true); // Marca o filme como removido
-                        
-                        atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore);
-                        System.out.println("Filme removido com sucesso!");
+                    
+                    int IDDesejado;
+                    Filmes novoFilme;
+
+                    if(index ==1){
+
+                        System.out.println("Digite o ID do Filme/Serie desejado para remover");
+                        IDDesejado = sc.nextInt();
+                        novoFilme = Pesquisar.PesquisarIDArvore(binarioFile, IDDesejado, arvore);
+                    
+                        if(novoFilme != null && arvore != null){
+                            novoFilme.setLAPIDE(true); // Marca o filme como removido
+                            
+                            atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index);
+                            System.out.println("Filme/Serie removido com sucesso!");
+                        }
+
                     }
+
+                    else if(index  == 3){
+
+                        try{
+
+                            int apagar = Menus.MenuApagarLista(sc);
+                            Long endereco = null;
+                            
+
+                            //Apaga um Filme/Serie de todos os criterios
+                            if(apagar == 1){
+
+                                System.out.println("Digite o ID do Filme/Serie desejado para remover");
+                                IDDesejado = sc.nextInt();
+
+                                endereco = lista1.encontrarEndereco(IDDesejado);
+                                novoFilme = Pesquisar.PesquisarLista(binarioFile, endereco);
+
+                                novoFilme.setLAPIDE(true); // Marca o filme como removido
+                                atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index);
+
+                                lista1.delete(null, IDDesejado);
+                                lista2.delete(null, IDDesejado);
+                                
+                            }
+
+                            // Apaga um Filme/Serie de um unico criterio
+                            else if(apagar == 2){
+
+                                int tipoLista = Menus.SelecinarCriterio(sc, tmp);
+                                List<ListaInvertida> tmpLista = new ArrayList<>();
+                                int tmpcriterio = 0;
+
+                                System.out.println("Digite o ID do Filme/Serie desejado para remover");
+                                IDDesejado = sc.nextInt();
+
+                                sc.nextLine(); // Limpar o buffer
+
+                                System.out.println("Digite o criterio desejado para remover da lista de " + Pesquisar.BuscarCriterio(tmp.get(tipoLista)));
+                                String criterio = sc.nextLine();
+                                
+                                if(tipoLista == 0){
+                                    lista1.delete(criterio, IDDesejado);
+                                    endereco = lista1.encontrarEndereco(IDDesejado);
+                                    tmpLista.add(lista1);
+                                    tmpLista.add(lista2);
+                                }
+                                
+                                else if(tipoLista == 1){
+                                    lista2.delete(criterio, IDDesejado);
+                                    endereco = lista2.encontrarEndereco(IDDesejado);
+                                    tmpLista.add(lista2);
+                                    tmpLista.add(lista1);
+                                    tmpcriterio = 1;
+                                }
+
+                                if(!(tmpLista.get(0).encontrarID(IDDesejado))){
+
+                                    System.out.println("Filme/Serie removendo...");
+
+                                }
+
+                                else if(!(tmpLista.get(1).encontrarID(IDDesejado))){
+
+                                    System.out.println("Filme/Serie removendo, e não existe mais na lista invertida " + Pesquisar.BuscarCriterio(tmp.get(tmpcriterio)) + "!");
+                                    System.out.println("Filme/Serie removendo...");
+
+                                }
+
+                                else{
+
+                                    System.out.println("Filme/Serie removido, e não existe mais nas listas invertidas!");
+
+                                    novoFilme = Pesquisar.PesquisarLista(binarioFile, endereco);
+
+                                    if(novoFilme != null){
+                                        novoFilme.setLAPIDE(true); // Marca o filme como removido
+                                        atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index);
+                                    }                                    
+                            
+                                }
+
+                            }
+
+                            //Apaga uma Criterio inteiramente da lista invertida
+                            else if(apagar == 3){
+
+                                int tipoLista = Menus.SelecinarCriterio(sc, tmp);
+
+                                System.out.println("Digite o criterio desejado para remover da lista de " + Pesquisar.BuscarCriterio(tmp.get(tipoLista)));
+                                sc.nextLine(); // Limpar o buffer
+                                String criterio = sc.nextLine();
+                                
+                                if(tipoLista == 0){
+                                    lista1.delete(criterio, -1);
+                                }
+                                
+                                else if(tipoLista == 1){
+                                    lista2.delete(criterio, -1);
+                                }
+                                
+                            }
+
+                        }catch(Exception e){
+                            System.out.println("Erro ao remover o filme/serie");
+                            e.printStackTrace();
+                        }
+
+                    }
+                    
                     break;
                 }
                 
@@ -351,7 +469,7 @@ public class TP2 {
                         }
                 
                         // Permite edição antes de confirmar a adição
-                        uiAtualizacao.atualizarUI(ID, binarioFile, binarioPais, novoFilme, sc, arvore);
+                        uiAtualizacao.atualizarUI(ID, binarioFile, binarioPais, novoFilme, sc, arvore, index);
 
                     }catch (IOException e){
                         System.out.println("Arquivo nao encontrado");
@@ -411,14 +529,34 @@ public class TP2 {
                         } catch (IOException e) {
                             System.out.println("Erro ao fechar o arquivo: " + e.getMessage());
                         }
-                    } 
+                    }
+
+                    if(lista1 != null) {
+                        try {
+                            lista1.close(); // Fechar o arquivo antes de excluir
+                            System.out.println("Arquivos da primeira lista invertida fechados com sucesso");
+                        } catch (IOException e) {
+                            System.out.println("Erro ao fechar arquivos da primeira lista: " + e.getMessage());
+                        }
+                    }
+                    
+                    if(lista2 != null) {
+                        try {
+                            lista2.close(); // Fechar o arquivo antes de excluir
+                            System.out.println("Arquivos da segunda lista invertida fechados com sucesso");
+                        } catch (IOException e) {
+                            System.out.println("Erro ao fechar arquivos da segunda lista: " + e.getMessage());
+                        }
+                    }
                     
                     if(arquivoIndexacao2 != null){
                         Path caminho2 = Paths.get(arquivoIndexacao2);
+                        Path dicinario = Paths.get(dicinarioLista);
                     
                         // Verifica se o arquivo existe antes de tentar excluí-lo
                         try {
                             if (Files.exists(caminho)) {
+                                // Exclui o arquivo se ele existir
                                 boolean deletado = Files.deleteIfExists(Paths.get(arquivoIndexacao));
                                 if (deletado) {
                                     System.out.println("Arquivo " + Paths.get(arquivoIndexacao).getFileName().toString() + " excluído com sucesso");
@@ -428,6 +566,12 @@ public class TP2 {
                                 boolean deletado = Files.deleteIfExists(Paths.get(arquivoIndexacao2));
                                 if (deletado) {
                                     System.out.println("Arquivo " + Paths.get(arquivoIndexacao2).getFileName().toString() + " excluído com sucesso");
+                                }
+                            }
+                            if (Files.exists(dicinario)) {
+                                boolean deletado = Files.deleteIfExists(Paths.get(dicinarioLista));
+                                if (deletado) {
+                                    System.out.println("Arquivo " + Paths.get(dicinarioLista).getFileName().toString() + " excluído com sucesso");
                                 }
                             }
                         } catch (Exception e) {

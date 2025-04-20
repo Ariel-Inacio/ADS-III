@@ -125,7 +125,7 @@ public class Pesquisar {
     }
 
     public static ArrayList<Long> PesquisarLista(ListaInvertida lista, String chave) {
-        ElementoLista[] resultado = null;
+        ElementoLista[] resultado;
         ArrayList<Long> listaPosicoes = new ArrayList<>(); // Lista para armazenar as posições encontradas
         try {
 
@@ -142,6 +142,40 @@ public class Pesquisar {
         }
 
         return listaPosicoes; // Retorna os resultados encontrados
+
+    }
+
+    public static Filmes PesquisarLista(String binarioFile, Long posicao) {
+
+        Filmes filme = null;
+
+        try(RandomAccessFile raf = new RandomAccessFile(binarioFile, "r")) {
+            raf.seek(posicao); // Move o ponteiro para a posição do filme
+
+            int size = raf.readInt(); // Lê o tamanho do objeto
+            byte[] FilmeBytes = new byte[size];
+            raf.readFully(FilmeBytes); // Lê os dados do objeto
+    
+            try(ByteArrayInputStream bais = new ByteArrayInputStream(FilmeBytes); ObjectInputStream ois = new ObjectInputStream(bais)) {
+                filme = (Filmes) ois.readObject(); // Converte os bytes para objeto Filmes
+
+                if (!filme.getLAPIDE()) {
+                    return filme; // Retorna o filme se não estiver marcado como excluído
+                }
+
+            } catch (ClassNotFoundException e) {
+                System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
+            }
+        } 
+        catch (IOException e) {
+            System.out.println("Erro de IO: " + e.getMessage());
+            e.printStackTrace();
+        } 
+        catch (Exception e) {
+            System.out.println("Erro ao pesquisar na lista invertida: " + e.getMessage());
+        }
+
+        return filme; // Retorna null se o filme não for encontrado
 
     }
 

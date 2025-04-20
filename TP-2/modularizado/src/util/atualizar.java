@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class atualizar {
     // Método para atualizar o arquivo binario
-    public static void atualizarFilmeID(int IDDesejado, Filmes novoFilme, String binarioFile, ArvoreBMais<RegistroID> arvore) {
+    public static void atualizarFilmeID(int IDDesejado, Filmes novoFilme, String binarioFile, ArvoreBMais<RegistroID> arvore, int index) {
         try (RandomAccessFile file = new RandomAccessFile(binarioFile, "rw")) {
             int Ultimo = file.readInt(); // Lê o último ID armazenado no arquivo
             
@@ -67,26 +67,32 @@ public class atualizar {
                             file.write(novoBytes);
 
                             if(novoFilme.getLAPIDE() == true){
-                                try{
-                                    arvore.delete(new RegistroID(IDDesejado, -1)); // Remove o ID da árvore B+
-                                }catch(Exception e){
-                                    System.out.println("Erro ao remover o ID da arvore B+");
-                                    e.printStackTrace();
+
+                                if(index == 1){
+                                    try{
+                                        arvore.delete(new RegistroID(IDDesejado, -1)); // Remove o ID da árvore B+
+                                    }catch(Exception e){
+                                        System.out.println("Erro ao remover o ID da arvore B+");
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
 
                             else{
-                                try {
-                                    // Remove o registro antigo
-                                    arvore.delete(new RegistroID(IDDesejado, -1));
-                                    
-                                    // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
-                                    if (!novoFilme.getLAPIDE()) {
-                                        arvore.create(new RegistroID(novoFilme.getID(), posicaoInicial));
+
+                                if(index == 1){
+                                    try {
+                                        // Remove o registro antigo
+                                        arvore.delete(new RegistroID(IDDesejado, -1));
+                                        
+                                        // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
+                                        if (!novoFilme.getLAPIDE()) {
+                                            arvore.create(new RegistroID(novoFilme.getID(), posicaoInicial));
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println("Erro ao atualizar árvore B+");
+                                        e.printStackTrace();
                                     }
-                                } catch (Exception e) {
-                                    System.out.println("Erro ao atualizar árvore B+");
-                                    e.printStackTrace();
                                 }
                             }
                             

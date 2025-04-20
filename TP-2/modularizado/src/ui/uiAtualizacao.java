@@ -3,7 +3,6 @@ package ui;
 import classes.Filmes;
 import classes.RegistroID;
 import indexacao.Arvore.ArvoreBMais;
-
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +11,7 @@ import util.*;
 
 public class uiAtualizacao {
     // Função que cria uma Interface de usuario para arulizao o filme
-    public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc, ArvoreBMais<RegistroID> arvore) {
+    public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc, ArvoreBMais<RegistroID> arvore, int index) {
 
         int opcaoAtualizar;
 
@@ -40,7 +39,7 @@ public class uiAtualizacao {
             switch(opcaoAtualizar){
                 case 0:{
                     // Atualiza todas as informações do filme com base no ID
-                    atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore);
+                    atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index);
                     System.out.println("Atualizando dados...");
                     break;
                 }

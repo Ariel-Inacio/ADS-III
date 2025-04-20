@@ -334,8 +334,136 @@ public class ListaInvertida {
     return resposta;
   }
 
+  // Procura na lista se o ID ainda existe
+  public boolean encontrarID(int id) throws Exception {
+    // Percorre todas as chaves do dicionário
+    arqDicionario.seek(4);
+    while (arqDicionario.getFilePointer() < arqDicionario.length()) {
+      String chave = arqDicionario.readUTF();
+      long endereco = arqDicionario.readLong();
+        
+      // Para cada chave, busca o ID
+      Bloco b = new Bloco(quantidadeDadosPorBloco);
+      byte[] bd;
+      while (endereco != -1) {
+
+        if (endereco < 0) {
+          System.err.println("Erro: endereço negativo inválido (" + endereco + ") para o ID: " + id);
+          break; // Interrompe o loop em caso de endereço inválido
+        }
+
+        // Carrega o bloco
+        arqBlocos.seek(endereco);
+        bd = new byte[b.size()];
+        arqBlocos.read(bd);
+        b.fromByteArray(bd);
+            
+        // Verifica se o ID está neste bloco
+        if (b.test(id)) {
+          return true;  // ID encontrado
+        }
+            
+        // Avança para o próximo bloco
+        endereco = b.next();
+      }
+    }
+    return false;  // ID não encontrado em nenhuma chave
+  }
+
+  // Procura na lista o endereço do ID
+  public long encontrarEndereco(int id) throws Exception {
+
+    long resposta = -1;
+    String chave = "";
+    long endereco = -1;
+
+    // Percorre todas as chaves do dicionário
+    arqDicionario.seek(4);
+    while (arqDicionario.getFilePointer() < arqDicionario.length()) {
+      chave = arqDicionario.readUTF();
+      endereco = arqDicionario.readLong();
+        
+      // Para cada chave, busca o ID
+      Bloco b = new Bloco(quantidadeDadosPorBloco);
+      byte[] bd;
+      while (endereco != -1) {
+
+        if (endereco < 0) {
+          System.err.println("Erro: endereço negativo inválido (" + endereco + ") para o ID: " + id);
+          break; // Interrompe o loop em caso de endereço inválido
+        }
+
+        // Carrega o bloco
+        arqBlocos.seek(endereco);
+        bd = new byte[b.size()];
+        arqBlocos.read(bd);
+        b.fromByteArray(bd);
+            
+        // Acrescenta cada valor à lista
+        ElementoLista[] lb = b.list();
+        for (int i = 0; i < lb.length; i++){
+          
+          if (lb[i].getId() == id) {
+            resposta = lb[i].getLocalizacao();
+            return resposta;  // ID encontrado, retorna a localização
+          }
+
+        }
+            
+        // Avança para o próximo bloco
+        endereco = b.next();
+      }
+    }
+    return resposta;  // ID não encontrado em nenhuma chave
+  }
+
   // Remove o dado de uma chave (mas não apaga a chave nem apaga blocos)
   public boolean delete(String c, int id) throws Exception {
+
+    // CASO ESPECIAL: Exclusão global por ID (em todas as chaves)
+    if (c == null && id >= 0) {
+      boolean algoFoiRemovido = false;
+      
+      // Primeiro, vamos salvar a posição atual do arquivo para restaurar depois
+      long posicaoOriginal = arqDicionario.getFilePointer();
+      
+      // Posiciona no início do arquivo (após o cabeçalho)
+      arqDicionario.seek(4);
+      
+      // Percorre todas as chaves do dicionário
+      while (arqDicionario.getFilePointer() < arqDicionario.length()) {
+          String chaveAtual = arqDicionario.readUTF();
+          long enderecoAtual = arqDicionario.readLong();
+          
+          // Para cada chave, busca e remove o ID
+          Bloco b = new Bloco(quantidadeDadosPorBloco);
+          byte[] bd;
+          long endereco = enderecoAtual;
+          
+          while (endereco != -1) {
+              // Carrega o bloco
+              arqBlocos.seek(endereco);
+              bd = new byte[b.size()];
+              arqBlocos.read(bd);
+              b.fromByteArray(bd);
+              
+              // Verifica se o ID está neste bloco
+              if (b.test(id)) {
+                  b.delete(id);
+                  arqBlocos.seek(endereco);
+                  arqBlocos.write(b.toByteArray());
+                  algoFoiRemovido = true;
+              }
+              
+              // Avança para o próximo bloco
+              endereco = b.next();
+          }
+      }
+      
+      // Restaura a posição original
+      arqDicionario.seek(posicaoOriginal);
+      return algoFoiRemovido;
+    }
 
     String chave = "";
     long endereco = -1;
@@ -351,8 +479,49 @@ public class ListaInvertida {
         break;
       }
     }
+
     if (!jaExiste)
       return false;
+
+    // Caso especial: id = -1 significa "apagar todos os elementos"
+    if (id == -1) {
+      boolean algoFoiRemovido = false;
+      Bloco b = new Bloco(quantidadeDadosPorBloco);
+      byte[] bd;
+      long enderecoInicial = endereco;
+        
+      // Percorre todos os blocos da chave e os esvazia
+      while (endereco != -1) {
+        // Carrega o bloco
+        arqBlocos.seek(endereco);
+        bd = new byte[b.size()];
+        arqBlocos.read(bd);
+        b.fromByteArray(bd);
+            
+        // Se o bloco tinha algum elemento, marcar que algo foi removido
+        if (!b.empty()) {
+          algoFoiRemovido = true;
+        }
+            
+        // Salva o próximo endereço antes de esvaziar o bloco
+        long proximoBloco = b.next();
+            
+        // Criar um novo bloco vazio mantendo o mesmo ponteiro de próximo
+        b = new Bloco(quantidadeDadosPorBloco);
+        b.setNext(proximoBloco);
+            
+        // Escrever o bloco vazio no arquivo
+        arqBlocos.seek(endereco);
+        arqBlocos.write(b.toByteArray());
+            
+        // Avança para o próximo bloco
+        endereco = proximoBloco;
+      }
+        
+      return algoFoiRemovido;
+    }
+
+    
 
     // Cria um laço para percorrer todos os blocos encadeados nesse endereço
     Bloco b = new Bloco(quantidadeDadosPorBloco);
@@ -421,5 +590,15 @@ public class ListaInvertida {
         System.out.print(lista.get(j) + " ");
       System.out.println();
     }
+  }
+
+  // Método para fechar os arquivos abertos
+  public void close() throws IOException {
+  if (arqDicionario != null) {
+      arqDicionario.close();
+  }
+  if (arqBlocos != null) {
+      arqBlocos.close();
+  }
   }
 }

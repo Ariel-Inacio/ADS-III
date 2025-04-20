@@ -18,22 +18,5 @@ public class FazerArquivo {
         return nomeArquivo;
 
     }
-
-    public static int BuscarCriterio(int criterio){
-
-        int index = 0;
-        switch(criterio){
-            case 1: index = 1; break; // Nome do filme
-            case 2: index = 3; break; // Diretor
-            case 3: index = 4; break; // País
-            case 4: index = 5; break; // Data de Adição
-            case 5: index = 6; break; // Ano de Lançamento
-            case 6: index = 7; break; // Classificação Indicativa
-            case 7: index = 9; break; // Gênero
-            default: System.out.println("Opcao invalida"); break;
-        }
-        return index;
-
-    }
     
 }

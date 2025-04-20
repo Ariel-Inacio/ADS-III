@@ -91,7 +91,7 @@ public class Menus {
 
         do{
     
-            System.out.println("\t Selecione dois dos criterios para a craicao de duas lista invertida");
+            System.out.println("\tSelecione dois dos criterios para a craicao de duas lista invertida");
             System.out.println("\t-----------------------------------------");
             System.out.println("\t1: Movie/TV Show");
             System.out.println("\t2: Diretor");
@@ -139,7 +139,7 @@ public class Menus {
 
     }
 
-    public static ArrayList<Long> tipoPesquisaLista(Scanner sc, List<Integer> tmp, ListaInvertida lista1, ListaInvertida lista2){
+    public static ArrayList<Long> tipoMenuLista(Scanner sc, List<Integer> tmp, ListaInvertida lista1, ListaInvertida lista2, String binarioPais){
 
         boolean verificar = false;
         List<String> criterios = new ArrayList<>();
@@ -161,10 +161,10 @@ public class Menus {
             switch(opcao){
                 case 1:{
 
-                    sc.nextLine(); // Limpa o buffer do scanner
-
-                    System.out.println("\tDigite o termo a ser pesquisado na lista " + criterios.get(0) + ": ");
-                    String termo = sc.nextLine();
+                    System.out.println("\tPesquisa de criterio na lista de" + criterios.get(0) + ": ");
+                    if(tmp.get(0) != 7)
+                        sc.nextLine(); // Limpa o buffer do scanner
+                    String termo = MenuCriterioTipoLisata(tmp.get(0), sc, binarioPais);
 
                     elementos = Pesquisar.PesquisarLista(lista1, termo);
 
@@ -175,10 +175,10 @@ public class Menus {
                 }
                 case 2:{
 
-                    sc.nextLine(); // Limpa o buffer do scanner
-
-                    System.out.println("\tDigite o termo a ser pesquisado na lista " + criterios.get(1) + ": ");
-                    String termo = sc.nextLine();
+                    System.out.println("\tPesquisa de criterio na lista de " + criterios.get(1) + ": ");
+                    if(tmp.get(1) != 7)
+                        sc.nextLine(); // Limpa o buffer do scanner
+                    String termo = MenuCriterioTipoLisata(tmp.get(1), sc, binarioPais);
 
                     elementos = Pesquisar.PesquisarLista(lista2, termo);
 
@@ -188,13 +188,17 @@ public class Menus {
                 }
                 case 3:{
 
-                    sc.nextLine(); // Limpa o buffer do scanner
+                    if(tmp.get(0) != 7)
+                        sc.nextLine(); // Limpa o buffer do scanner
 
-                    System.out.println("\tDigite o termo a ser pesquisado na lista " + criterios.get(0) + ": ");
-                    String termo1 = sc.nextLine();
+                    System.out.println("\tPesquisa de criterio na lista de " + criterios.get(0) + ": ");
+                    String termo1 = MenuCriterioTipoLisata(tmp.get(0), sc, binarioPais);
 
-                    System.out.println("\tDigite o termo a ser pesquisado na lista " + criterios.get(1) + ": ");
-                    String termo2 = sc.nextLine();
+                    if(tmp.get(1) == 7 || tmp.get(0) == 7)
+                        sc.nextLine(); // Limpa o buffer do scanner
+
+                    System.out.println("\tPesquisa de criterio na lista de " + criterios.get(1) + ": ");
+                    String termo2 = MenuCriterioTipoLisata(tmp.get(1), sc, binarioPais);
 
                     ArrayList<Long> elementos1 = Pesquisar.PesquisarLista(lista1, termo1);
                     ArrayList<Long> elementos2 = Pesquisar.PesquisarLista(lista2, termo2);
@@ -216,4 +220,106 @@ public class Menus {
         return elementos;
 
     }
+
+    public static String MenuCriterioTipoLisata(int criterio, Scanner sc, String binarioPais){
+
+        String resposta = null;
+        Boolean verificar = false;
+       
+
+        if(criterio == 1){
+            do{
+                System.out.println("\tSelecione o formato que deseja pesquisar:");
+                System.out.println("\t-----------------------------------------");
+                System.out.println("\t1: Movie");
+                System.out.println("\t2: TV Show");
+                System.out.println("\t-----------------------------------------");
+
+                resposta = sc.nextLine();
+                int opcao = Integer.parseInt(resposta);
+
+                switch(opcao){
+                    case 1: resposta = "Movie"; verificar = true; break;
+                    case 2: resposta = "TV Show"; verificar = true; break;
+                    default: System.out.println("Opcao invalida"); break;
+                }
+
+            }while(!verificar);
+        }
+
+        else if(criterio == 4){
+
+            System.out.println("Digite o nome em ingles do pais que deseja pesquisar: ");
+            resposta = sc.nextLine();
+            resposta = Pesquisar.PesquisarPaisAbre(binarioPais, resposta);
+
+        }
+
+        else if(criterio == 7){
+
+            resposta = classificacaoIndicativa(sc);
+
+        }
+
+        else{
+            System.out.println("Digite o termo que deseja pesquisar: ");
+            sc.nextLine(); // Limpa o buffer do scanner
+            resposta = sc.nextLine();
+        }
+
+        return resposta;
+
+    }
+
+    public static int MenuApagarLista(Scanner sc){
+
+        int index = 0;
+        boolean verificar = false;
+        do{
+            System.out.println("\tSelecione o que deseja apagar:");
+            System.out.println("\t-----------------------------------------");
+            System.out.println("\t1: Apagar Filme/Serie de todos os criterios");
+            System.out.println("\t2: Apagar um Filme/Serie de um unico criterio");
+            System.out.println("\t3: Apagar um Criterio inteiramente da lista invertida");
+            System.out.println("\t-----------------------------------------");
+
+            index = sc.nextInt();
+
+            switch(index){
+                case 1: index = 1; verificar = true; break;
+                case 2: index = 2; verificar = true; break;
+                case 3: index = 3; verificar = true; break;
+                default: System.out.println("Opcao invalida"); break;
+            }
+        }while(!verificar);
+
+        return index;
+
+    }
+
+    public static int SelecinarCriterio(Scanner sc, List<Integer> criterio){
+
+        int index = 0;
+        boolean verificar = false;
+        do{
+            System.out.println("\tSelecione o tipo de critario que deseja apagar:");
+            System.out.println("\t-----------------------------------------");
+            System.out.println("\t1: " + Pesquisar.BuscarCriterio(criterio.get(0)));
+            System.out.println("\t2: " + Pesquisar.BuscarCriterio(criterio.get(1)));
+            System.out.println("\t-----------------------------------------");
+
+            index = sc.nextInt();
+
+            switch(index){
+                case 1: index = 0; verificar = true; break;
+                case 2: index = 1; verificar = true; break;
+                default: System.out.println("Opcao invalida"); break;
+            }
+
+        }while(!verificar);
+
+        return index;
+
+    }
+
 }
