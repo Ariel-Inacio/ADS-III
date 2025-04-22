@@ -148,7 +148,11 @@ public class Menus {
         for(int i = 0; i < tmp.size(); i++){
             criterios.add(Pesquisar.BuscarCriterio(tmp.get(i)));
         }
+
+        sc.nextLine(); // Limpa o buffer do scanner
+
         do{
+
             System.out.println("\tSelecione o tipo de pesquisa desejada:");
             System.out.println("\t-----------------------------------------");
             System.out.println("\t1: Pesquisa na lista " + criterios.get(0));
@@ -156,14 +160,14 @@ public class Menus {
             System.out.println("\t3: Pesquisa por dados cruzados utilizando as duas listas");
             System.out.println("\t-----------------------------------------");
 
-            int opcao = sc.nextInt();
+            String tmpString = sc.nextLine();
+            int opcao = Integer.parseInt(tmpString);
 
             switch(opcao){
                 case 1:{
 
-                    System.out.println("\tPesquisa de criterio na lista de" + criterios.get(0) + ": ");
-                    if(tmp.get(0) != 7)
-                        sc.nextLine(); // Limpa o buffer do scanner
+                    System.out.println("\tPesquisa de criterio na lista de " + criterios.get(0) + ": ");
+
                     String termo = MenuCriterioTipoLisata(tmp.get(0), sc, binarioPais);
 
                     elementos = Pesquisar.PesquisarLista(lista1, termo);
@@ -176,8 +180,7 @@ public class Menus {
                 case 2:{
 
                     System.out.println("\tPesquisa de criterio na lista de " + criterios.get(1) + ": ");
-                    if(tmp.get(1) != 7)
-                        sc.nextLine(); // Limpa o buffer do scanner
+
                     String termo = MenuCriterioTipoLisata(tmp.get(1), sc, binarioPais);
 
                     elementos = Pesquisar.PesquisarLista(lista2, termo);
@@ -188,13 +191,10 @@ public class Menus {
                 }
                 case 3:{
 
-                    if(tmp.get(0) != 7)
-                        sc.nextLine(); // Limpa o buffer do scanner
-
                     System.out.println("\tPesquisa de criterio na lista de " + criterios.get(0) + ": ");
                     String termo1 = MenuCriterioTipoLisata(tmp.get(0), sc, binarioPais);
 
-                    if(tmp.get(1) == 7 || tmp.get(0) == 7)
+                    if(tmp.get(0) == 7)
                         sc.nextLine(); // Limpa o buffer do scanner
 
                     System.out.println("\tPesquisa de criterio na lista de " + criterios.get(1) + ": ");
@@ -263,7 +263,6 @@ public class Menus {
 
         else{
             System.out.println("Digite o termo que deseja pesquisar: ");
-            sc.nextLine(); // Limpa o buffer do scanner
             resposta = sc.nextLine();
         }
 
