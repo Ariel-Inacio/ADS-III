@@ -3,15 +3,19 @@ package ui;
 import classes.Filmes;
 import classes.RegistroID;
 import indexacao.Arvore.ArvoreBMais;
+import indexacao.Hash.HashExtensivel;
+import indexacao.Hash.ParID;
+import indexacao.Lista.ListaInvertida;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 import util.*;
 
 public class uiAtualizacao {
     // Função que cria uma Interface de usuario para arulizao o filme
-    public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc, ArvoreBMais<RegistroID> arvore, int index) {
+    public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc, ArvoreBMais<RegistroID> arvore, int index, ListaInvertida lista1, ListaInvertida lista2, List<Integer> Criterios, HashExtensivel<ParID> hash) {
 
         int opcaoAtualizar;
 
@@ -39,7 +43,7 @@ public class uiAtualizacao {
             switch(opcaoAtualizar){
                 case 0:{
                     // Atualiza todas as informações do filme com base no ID
-                    atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index);
+                    atualizar.atualizarFilmeID(IDDesejado, novoFilme, binarioFile, arvore, index, lista1, lista2, Criterios, hash);
                     System.out.println("Atualizando dados...");
                     break;
                 }

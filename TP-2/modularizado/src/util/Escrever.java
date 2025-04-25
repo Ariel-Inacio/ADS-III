@@ -3,6 +3,7 @@ package util;
 import classes.Filmes;
 import classes.RegistroID;
 import indexacao.Arvore.ArvoreBMais;
+import indexacao.Hash.*;
 import indexacao.Lista.ElementoLista;
 import indexacao.Lista.ListaInvertida;
 import java.io.BufferedReader;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class Escrever {
     //Função para ler o arquivo CSV e salva-lo como um arquivo Binario
-    public static void IniciarArquivoCSV(String file, String binarioFile, String binarioPais, String file2, int index, Scanner sc, ArvoreBMais<RegistroID> arvore, ListaInvertida lista1, ListaInvertida lista2, List<Integer> Criterios) {
+    public static void IniciarArquivoCSV(String file, String binarioFile, String binarioPais, String file2, int index, Scanner sc, ArvoreBMais<RegistroID> arvore, ListaInvertida lista1, ListaInvertida lista2, List<Integer> Criterios, HashExtensivel<ParID> hash) {
 
         System.out.println("Lendo arquivo...");
         
@@ -126,6 +127,12 @@ public class Escrever {
                     }
                 }
 
+                else if(index == 2){
+                    
+                    hash.create(new ParID(posicaoAtual, registro));
+                    
+                }
+
                 else if(index == 3){
 
                     List<String> ListaCriterios = Arrays.stream(dadosFilme.get(Criterios.get(0)).split(",")).map(String::trim).collect(Collectors.toList());
@@ -197,5 +204,25 @@ public class Escrever {
         byte[] objectBytes = baos.toByteArray();
         out.writeInt(objectBytes.length);
         out.write(objectBytes);
+    }
+
+    //Método para adicinar um novo objeto a lista invertida
+    public static void AdicionarListaInvertida(ListaInvertida lista, long posicao, Filmes novoFilme, int tmp) {
+
+        try{
+
+            List<String> ListaCriterios = Arrays.stream(novoFilme.CriterioLista(tmp).split(",")).map(String::trim).collect(Collectors.toList());
+
+            for(int i = 0; i < ListaCriterios.size(); i++){
+                lista.create(ListaCriterios.get(i), new ElementoLista(posicao, novoFilme.getID()));
+            }
+            
+        }catch (FileNotFoundException e) {
+            System.out.println("Arquivo não encontrado");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

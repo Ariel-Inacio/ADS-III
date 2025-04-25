@@ -3,6 +3,8 @@ package util;
 import classes.Filmes;
 import classes.RegistroID;
 import indexacao.Arvore.ArvoreBMais;
+import indexacao.Hash.*;
+import indexacao.Lista.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -11,11 +13,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.util.List;
 import java.util.Scanner;
 
 public class atualizar {
     // Método para atualizar o arquivo binario
-    public static void atualizarFilmeID(int IDDesejado, Filmes novoFilme, String binarioFile, ArvoreBMais<RegistroID> arvore, int index) {
+    public static void atualizarFilmeID(int IDDesejado, Filmes novoFilme, String binarioFile, ArvoreBMais<RegistroID> arvore, int index, ListaInvertida lista1, ListaInvertida lista2, List<Integer> Criterios, HashExtensivel<ParID> hash) {
         try (RandomAccessFile file = new RandomAccessFile(binarioFile, "rw")) {
             int Ultimo = file.readInt(); // Lê o último ID armazenado no arquivo
             
@@ -66,15 +69,12 @@ public class atualizar {
                             file.seek(posicaoInicial + 4);
                             file.write(novoBytes);
 
-                            if(novoFilme.getLAPIDE() == true){
-
-                                if(index == 1){
-                                    try{
-                                        arvore.delete(new RegistroID(IDDesejado, -1)); // Remove o ID da árvore B+
-                                    }catch(Exception e){
-                                        System.out.println("Erro ao remover o ID da arvore B+");
-                                        e.printStackTrace();
-                                    }
+                            if(novoFilme.getLAPIDE() == true && index == 1){
+                                try{
+                                    arvore.delete(new RegistroID(IDDesejado, -1)); // Remove o ID da árvore B+
+                                }catch(Exception e){
+                                    System.out.println("Erro ao remover o ID da arvore B+");
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -93,6 +93,41 @@ public class atualizar {
                                         System.out.println("Erro ao atualizar árvore B+");
                                         e.printStackTrace();
                                     }
+                                }
+
+                                else if(index == 2){
+                                    try {
+                                        // Remove o registro antigo
+                                        hash.delete(ParID.hash(IDDesejado));
+                                        // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
+                                        if (!novoFilme.getLAPIDE()) {
+                                            hash.create(new ParID(posicaoInicial, novoFilme.getID()));
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println("Erro ao atualizar árvore hash");
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                else if(index == 3){
+
+                                    try {
+                                        // Remove o registro antigo
+                                        lista1.delete(null, IDDesejado);
+                                        lista2.delete(null, IDDesejado);
+
+                                        // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
+                                        if (!novoFilme.getLAPIDE()) {
+
+                                            Escrever.AdicionarListaInvertida(lista1, posicaoInicial, novoFilme, Criterios.get(0));
+                                            Escrever.AdicionarListaInvertida(lista2, posicaoInicial, novoFilme, Criterios.get(1));
+                                        }
+
+                                    } catch (Exception e) {
+                                        System.out.println("Erro ao atualizar lista invertida");
+                                        e.printStackTrace();
+                                    }
+
                                 }
                             }
                             
@@ -125,16 +160,18 @@ public class atualizar {
                             file.writeInt(novoTamanho);
                             file.write(novoBytes);
 
-                            try {
-                                // Primeiro remove o registro antigo
-                                arvore.delete(new RegistroID(IDDesejado, -1));
-                                
-                                // Se não estiver marcado como excluído, adiciona o novo
-                                if (!novoFilme.getLAPIDE()) {
-                                    arvore.create(new RegistroID(novoFilme.getID(), novaPosicao));
+                            if(index == 1){
+                                try {
+                                    // Primeiro remove o registro antigo
+                                    arvore.delete(new RegistroID(IDDesejado, -1));
+                                    
+                                    // Se não estiver marcado como excluído, adiciona o novo
+                                    if (!novoFilme.getLAPIDE()) {
+                                        arvore.create(new RegistroID(novoFilme.getID(), novaPosicao));
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
                             
                             Ultimo = novoFilme.getID();

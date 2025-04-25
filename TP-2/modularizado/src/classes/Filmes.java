@@ -147,6 +147,25 @@ public class Filmes implements Externalizable, Comparable<Filmes>{
             throw new IOException("Erro ao ler objeto Filmes", e);
         }
     }
+
+    public String CriterioLista(int criterios){
+        // Retorna o valor do atributo correspondente ao critério fornecido
+        switch(criterios){
+            case 1: return tipo;
+            case 3: return diretor;
+            case 4: return pais;
+            case 5:{
+                LocalDate dataTmp = ano_adi;
+                // Formata a data de adição para o formato "M/d/yyyy"
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("M/d/yyyy");
+                return dataTmp.format(format);
+            }
+            case 6: return ano_lan.toString();
+            case 7: return classificacao;
+            case 9: return Genero;
+            default: return null;
+        }
+    }
     
     @Override
     public int compareTo(Filmes f) {

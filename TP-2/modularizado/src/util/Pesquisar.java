@@ -124,6 +124,7 @@ public class Pesquisar {
         return index;
     }
 
+    //Método para pesquisar na lista invertida a posição de um filme
     public static ArrayList<Long> PesquisarLista(ListaInvertida lista, String chave) {
         ElementoLista[] resultado;
         ArrayList<Long> listaPosicoes = new ArrayList<>(); // Lista para armazenar as posições encontradas
@@ -145,40 +146,7 @@ public class Pesquisar {
 
     }
 
-    public static Filmes PesquisarLista(String binarioFile, Long posicao) {
-
-        Filmes filme = null;
-
-        try(RandomAccessFile raf = new RandomAccessFile(binarioFile, "r")) {
-            raf.seek(posicao); // Move o ponteiro para a posição do filme
-
-            int size = raf.readInt(); // Lê o tamanho do objeto
-            byte[] FilmeBytes = new byte[size];
-            raf.readFully(FilmeBytes); // Lê os dados do objeto
-    
-            try(ByteArrayInputStream bais = new ByteArrayInputStream(FilmeBytes); ObjectInputStream ois = new ObjectInputStream(bais)) {
-                filme = (Filmes) ois.readObject(); // Converte os bytes para objeto Filmes
-
-                if (!filme.getLAPIDE()) {
-                    return filme; // Retorna o filme se não estiver marcado como excluído
-                }
-
-            } catch (ClassNotFoundException e) {
-                System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
-            }
-        } 
-        catch (IOException e) {
-            System.out.println("Erro de IO: " + e.getMessage());
-            e.printStackTrace();
-        } 
-        catch (Exception e) {
-            System.out.println("Erro ao pesquisar na lista invertida: " + e.getMessage());
-        }
-
-        return filme; // Retorna null se o filme não for encontrado
-
-    }
-
+    //Método para pesquisar um filme na lista invertida
     public static Filmes ListaFilmes(Long posicao, String binarioFile) {
         Filmes filme = null;
         try (RandomAccessFile raf = new RandomAccessFile(binarioFile, "r")) {
@@ -206,6 +174,34 @@ public class Pesquisar {
             e.printStackTrace();
         }
 
+        return null; // Retorna null se o filme não for encontrado
+    }
+
+    public static Filmes PesquisarID(String binarioFile, int IDDesejado) {
+        try (RandomAccessFile dis = new RandomAccessFile(binarioFile, "r")) {
+            int Ultimo = dis.readInt(); // Lê o último ID registrado
+            
+            while (dis.getFilePointer() < dis.length()) {
+                int size = dis.readInt(); // Lê o tamanho do objeto
+                byte[] FilmeBytes = new byte[size];
+                dis.readFully(FilmeBytes); // Lê os dados do objeto
+    
+                try(ByteArrayInputStream bais = new ByteArrayInputStream(FilmeBytes); ObjectInputStream ois = new ObjectInputStream(bais)) {
+                    Filmes filme = (Filmes) ois.readObject(); // Converte os bytes para objeto Filmes
+                    if (!filme.getLAPIDE() && filme.getID() == IDDesejado) {
+                        return filme; // Retorna o filme encontrado
+                    }
+                } catch (ClassNotFoundException e) {
+                    System.out.println("Erro ao converter para classe Filmes: " + e.getMessage());
+                }
+            }
+
+            System.err.println("ID não encontrado");
+
+        } catch (IOException e) {
+            System.out.println("Erro de IO: " + e.getMessage());
+            e.printStackTrace();
+        }
         return null; // Retorna null se o filme não for encontrado
     }
 
