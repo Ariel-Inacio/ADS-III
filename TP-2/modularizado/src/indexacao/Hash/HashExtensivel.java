@@ -471,6 +471,7 @@ public class HashExtensivel<T extends RegistroHashExtensivel<T>> {
     }
   }
 
+  //Apaga e fecha os arquivos de hash
   public void close() throws IOException {
     arqDiretorio.close();
     arqCestos.close();

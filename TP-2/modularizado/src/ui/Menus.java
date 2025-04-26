@@ -7,6 +7,8 @@ import java.util.Scanner;
 import util.Pesquisar;
 
 public class Menus {
+
+    //Função para definir o tipo de indexacao desejada
     public static int tiposDeIdexacao(Scanner sc){
         int index = 0;
         boolean verificar = false;
@@ -84,7 +86,8 @@ public class Menus {
         return tipo;
     }
 
-    public static List<Integer> MenuLista(Scanner sc) {
+    //Função para definir os criterios de indexacao das listas invertidas
+    public static List<Integer> MenuLista(Scanner sc){
 
         List<Integer> lista = new ArrayList<>();
         boolean verificar = false;
@@ -107,6 +110,7 @@ public class Menus {
             System.err.println("\tSelecione o segundo criterio:");
             lista.add(sc.nextInt());
 
+            // Verifica se os critérios selecionados são iguais ou inválidos
             if(lista.get(0) == lista.get(1)){
                 System.out.println("\tOs criterios selecionados sao iguais, selecione novamente");
                 lista.clear();
@@ -139,6 +143,8 @@ public class Menus {
 
     }
 
+
+    //Função para definir o tipo de pesquisa desejada
     public static ArrayList<Long> tipoMenuLista(Scanner sc, List<Integer> tmp, ListaInvertida lista1, ListaInvertida lista2, String binarioPais){
 
         boolean verificar = false;
@@ -221,6 +227,7 @@ public class Menus {
 
     }
 
+    //Função para definir qual media deseja selecionar 
     public static String MenuCriterioTipoLisata(int criterio, Scanner sc, String binarioPais){
 
         String resposta = null;
@@ -270,6 +277,7 @@ public class Menus {
 
     }
 
+    //Função para definir o que deseja apagar, podendo ser um filme/serie, um Filme/Serie de todos os criterios ou um criterio inteiro
     public static int MenuApagarLista(Scanner sc){
 
         int index = 0;
@@ -296,6 +304,7 @@ public class Menus {
 
     }
 
+    //Função para definir qual criterio deseja apagar
     public static int SelecinarCriterio(Scanner sc, List<Integer> criterio){
 
         int index = 0;

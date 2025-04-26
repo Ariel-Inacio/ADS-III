@@ -1,5 +1,6 @@
 
-import classes.*;
+import classes.Filmes;
+import classes.RegistroID;
 import indexacao.Arvore.*;
 import indexacao.Hash.*;
 import indexacao.Lista.*;
@@ -7,7 +8,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.format.*;
 import java.util.*;
-import ordenacao.*;
+import ordenacao.Ordenacao;
 import ui.*;
 import util.*;
 
@@ -68,9 +69,12 @@ public class TP2 {
 
                             arquivoIndexacao = arquivoIndexacao + ".bin";
 
-                            System.out.println("\tQual o grau desejado da arvore:");
-                            int grau = sc.nextInt();
+                            int grau = 0;
 
+                            while(grau < 2 || grau > 100){
+                                System.out.println("\tQual o grau desejado da arvore (minimo 2 e maximo 100):");
+                                grau = sc.nextInt();
+                            }
                             arvore = new ArvoreBMais<>(RegistroID.class.getConstructor(), grau, arquivoIndexacao);
 
                         }catch(Exception e){
@@ -88,8 +92,12 @@ public class TP2 {
                             System.out.println("\tDigite o nome do arquivo da Hash:");
                             arquivoIndexacao = sc.nextLine();
 
-                            System.out.println("\tQual o tamanho desejado da Hash:");
-                            int tamanho = sc.nextInt();
+                            int tamanho = 0;
+
+                            while(tamanho < 2 || tamanho > 100){
+                                System.out.println("\tQual a quantidade de blocos desejado no hash (minimo 2 e maximo 100):");
+                                tamanho = sc.nextInt();
+                            }
 
                             hash = new HashExtensivel<>(ParID.class.getConstructor(), tamanho, arquivoIndexacao + ".bin", arquivoIndexacao + "Bucket.bin");
 
@@ -109,14 +117,18 @@ public class TP2 {
                             tmp = criterios;
                             dicinarioLista = "dicionarioLista.bin";
 
-                            arquivoIndexacao = FazerArquivo.Arquivo(criterios.get(0));
-                            arquivoIndexacao2 = FazerArquivo.Arquivo(criterios.get(1));
+                            arquivoIndexacao = FazerArquivo.Arquivo(criterios.get(0));//Cria o arquivo de indexação
+                            arquivoIndexacao2 = FazerArquivo.Arquivo(criterios.get(1));//Cria o arquivo de indexação2
 
                             arquivoIndexacao = arquivoIndexacao + ".bin";
                             arquivoIndexacao2 = arquivoIndexacao2 + ".bin";
 
-                            System.out.println("\tQuantos dados por bloco?:");
-                            int grau = sc.nextInt();
+                            int grau = 0;
+
+                            while(grau < 2 || grau > 100){
+                                System.out.println("\tQuantos dados por bloco deseja por na lista invertida (minimo 2 e maximo 100, sendo recomendado entre 40 e 50, por ser mais rapido rapido):");
+                                grau = sc.nextInt();
+                            }
 
                             lista1 = new ListaInvertida(grau, dicinarioLista, arquivoIndexacao);
                             lista2 = new ListaInvertida(grau, dicinarioLista, arquivoIndexacao2);
@@ -653,6 +665,7 @@ public class TP2 {
                 
                 case 0:{
 
+                    //Obtem o caminho do arquivo de indexação
                     Path caminho = Paths.get(arquivoIndexacao);
 
                    
@@ -688,6 +701,7 @@ public class TP2 {
                         }
                     }
                     
+                    // Verifica se o arquivo existe antes de tentar excluí-lo
                     if(arquivoIndexacao2 != null){
                         Path caminho2 = Paths.get(arquivoIndexacao2);
                         Path dicinario = Paths.get(dicinarioLista);

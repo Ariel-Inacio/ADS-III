@@ -69,6 +69,7 @@ public class atualizar {
                             file.seek(posicaoInicial + 4);
                             file.write(novoBytes);
 
+                            //Remove um Filme/Serie da arvore B+ caso o mesmo tenha sido excluido
                             if(novoFilme.getLAPIDE() == true && index == 1){
                                 try{
                                     arvore.delete(new RegistroID(IDDesejado, -1)); // Remove o ID da árvore B+
@@ -78,6 +79,7 @@ public class atualizar {
                                 }
                             }
 
+                            //Atualiza o Filme/Serie removendo e inserindo novamente
                             else{
 
                                 if(index == 1){
@@ -172,6 +174,41 @@ public class atualizar {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                            }
+
+                            else if(index == 2){
+                                try {
+                                    // Remove o registro antigo
+                                    hash.delete(ParID.hash(IDDesejado));
+                                    // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
+                                    if (!novoFilme.getLAPIDE()) {
+                                        hash.create(new ParID(posicaoInicial, novoFilme.getID()));
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Erro ao atualizar árvore hash");
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            else if(index == 3){
+
+                                try {
+                                    // Remove o registro antigo
+                                    lista1.delete(null, IDDesejado);
+                                    lista2.delete(null, IDDesejado);
+
+                                    // Se o filme não estiver marcado como excluído, reinsere com o mesmo offset
+                                    if (!novoFilme.getLAPIDE()) {
+
+                                        Escrever.AdicionarListaInvertida(lista1, posicaoInicial, novoFilme, Criterios.get(0));
+                                        Escrever.AdicionarListaInvertida(lista2, posicaoInicial, novoFilme, Criterios.get(1));
+                                    }
+
+                                } catch (Exception e) {
+                                    System.out.println("Erro ao atualizar lista invertida");
+                                    e.printStackTrace();
+                                }
+
                             }
                             
                             Ultimo = novoFilme.getID();

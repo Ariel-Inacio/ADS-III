@@ -177,6 +177,7 @@ public class Pesquisar {
         return null; // Retorna null se o filme não for encontrado
     }
 
+    //Método para pesquisar um filme pelo ID no arquivo binário em formato serializado
     public static Filmes PesquisarID(String binarioFile, int IDDesejado) {
         try (RandomAccessFile dis = new RandomAccessFile(binarioFile, "r")) {
             int Ultimo = dis.readInt(); // Lê o último ID registrado
