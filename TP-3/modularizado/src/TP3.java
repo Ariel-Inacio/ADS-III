@@ -18,7 +18,7 @@ import ordenacao.Ordenacao;
 import ui.*;
 import util.*;
 
-public class TP2 {
+public class TP3 {
     public static void main(String[] args) {
         int opcao;
         String file = "src/ArquivosCSV/netflix1.csv";
