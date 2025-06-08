@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class ValidarComp {
 
+    //Função para validar a preservação dos dados após compressão e descompressão
     public static void ValidadeComp(byte[] dados, byte[] dadosDecodificados) {
         
         // Comparar os arrays

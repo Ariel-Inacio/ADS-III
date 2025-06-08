@@ -3,8 +3,9 @@ package util;
 import classes.Filmes;
 import classes.RegistroID;
 import indexacao.Arvore.ArvoreBMais;
-import indexacao.Hash.*;
-import indexacao.Lista.*;
+import indexacao.Hash.HashExtensivel;
+import indexacao.Hash.ParID;
+import indexacao.Lista.ListaInvertida;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -13,6 +14,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Scanner;
 
@@ -259,4 +264,30 @@ public class atualizar {
         return novoFilme;
         
     }
+
+    public static void ReescreverArquivo(String binariofile, String ArquivoDescopm) {
+
+        Path camihnoBinario = Paths.get(binariofile);
+        Path caminhoDescopm = Paths.get(ArquivoDescopm);
+        // Verifica se o arquivo binário existe
+        if (caminhoDescopm.toFile().exists()) {
+
+            // Se existir, copia o conteudo do arquivo descomprimido para o arquivo binario
+            // Se o arquivo binário não existir, ele será criado
+            try {
+                // Copia o conteúdo do arquivo descomprimido para o arquivo binário
+                Files.copy(caminhoDescopm, camihnoBinario, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Arquivo binário atualizado com sucesso.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Erro ao atualizar o arquivo binário: " + e.getMessage());
+            }
+            
+        } else {
+            System.out.println("Arquivo binário ou arquivo de descrição não encontrado.");
+        
+        }
+        
+    }
+
 }

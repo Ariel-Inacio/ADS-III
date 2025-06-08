@@ -110,6 +110,7 @@ public class Pesquisar {
         return quantidade;
     }
 
+    // Método para selecinar onde o casamneto de padrao sera implementado no filme
     public static String BuscarCriterio(int criterio) {
         String index = null;
         switch(criterio){

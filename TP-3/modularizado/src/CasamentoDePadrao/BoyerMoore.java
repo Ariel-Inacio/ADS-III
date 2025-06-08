@@ -64,13 +64,11 @@ public class BoyerMoore{
         return false; // Padrão não encontrado
     }
 
-    public static void inicio(String binarioFile, Scanner sc){
+    //Função que inicia a busca do padrão no arquivo binário
+    public static void inicio(String binarioFile, Scanner sc, String padrao){
 
         try (RandomAccessFile dis = new RandomAccessFile(binarioFile, "r")) {
             int Ultimo = dis.readInt(); // Lê o último ID registrado
-
-            System.err.println("\tDigite o que deseja pesquisar:");
-            String padrao = sc.nextLine();
 
             int tmpBusca = 0; // Variável para contar o número de buscas realizadas
             
@@ -78,19 +76,24 @@ public class BoyerMoore{
                 int size = dis.readInt(); // Lê o tamanho do objeto
                 byte[] FilmeBytes = new byte[size];
                 dis.readFully(FilmeBytes); // Lê os dados do objeto
-    
+
+                //Verifica filme por filme para encontrar o padrão
                 try(ByteArrayInputStream bais = new ByteArrayInputStream(FilmeBytes); ObjectInputStream ois = new ObjectInputStream(bais)) {
                     Filmes filme = (Filmes) ois.readObject(); // Converte os bytes para objeto Filmes
+                    //Se o filme não tiver lapide, verifica se o padrão está presente
                     if (!filme.getLAPIDE()) {
                         
                         if(filme != null){
                                 
                             for(int i = 1; i <= 7; i++){
 
+                                // Pesquisa o tópico no filme
                                 String texto = Pesquisar.pesquisarTopico(i, filme);
 
+                                //Busca o padrão no filme
                                 Boolean encontrado = buscarPadrao(padrao.toCharArray(), texto.toCharArray());
 
+                                //Se for encontrado printa o filme
                                 if(encontrado){
 
                                     filme.Ler();
@@ -99,11 +102,6 @@ public class BoyerMoore{
                                 }
 
                             }
-
-                            tmpBusca++;
-
-                            System.out.println(tmpBusca);
-
                         }
 
                     }

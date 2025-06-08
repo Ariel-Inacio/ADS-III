@@ -1,12 +1,11 @@
 package CasamentoDePadrao;
 
+import classes.Filmes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
-
-import classes.Filmes;
 import util.Pesquisar;
 
 public class KMP{
@@ -14,10 +13,10 @@ public class KMP{
     // Constrói o vetor LPS (prefixo mais longo que também é sufixo)
     public static void construirLps(String padrao, int[] lps) {
         
-        // 'comprimento' armazena o tamanho do maior prefixo que também é sufixo
+        //armazena o tamanho do maior prefixo que também é sufixo
         int comprimento = 0;
 
-        // O primeiro valor de LPS é sempre 0
+        // Define o primeiro valor de LPS é sempre 0
         lps[0] = 0;
 
         int i = 1;
@@ -79,13 +78,11 @@ public class KMP{
         return false; // Padrão não encontrado;
     }
 
-    public static void inicio(String binarioFile, Scanner sc){
+    //Função que inicia a busca do padrão no arquivo binário
+    public static void inicio(String binarioFile, Scanner sc , String padrao){
 
         try (RandomAccessFile dis = new RandomAccessFile(binarioFile, "r")) {
             int Ultimo = dis.readInt(); // Lê o último ID registrado
-
-            System.err.println("\tDigite o que deseja pesquisar:");
-            String padrao = sc.nextLine();
 
             int tmpBusca = 0; // Variável para contar o número de buscas realizadas
             
@@ -94,18 +91,23 @@ public class KMP{
                 byte[] FilmeBytes = new byte[size];
                 dis.readFully(FilmeBytes); // Lê os dados do objeto
     
+                //Verifica filme por filme para encontrar o padrão
                 try(ByteArrayInputStream bais = new ByteArrayInputStream(FilmeBytes); ObjectInputStream ois = new ObjectInputStream(bais)) {
                     Filmes filme = (Filmes) ois.readObject(); // Converte os bytes para objeto Filmes
+                    //Se o filme não tiver lapide, verifica se o padrão está presente
                     if (!filme.getLAPIDE()) {
                         
                         if(filme != null){
                                 
                             for(int i = 1; i <= 7; i++){
 
+                                // Pesquisa o tópico no filme
                                 String texto = Pesquisar.pesquisarTopico(i, filme);
 
+                                //Busca o padrão no filme
                                 Boolean encontrado = KMP.buscar(padrao, texto);
 
+                                //Se for encontrado printa o filme
                                 if(encontrado){
 
                                     filme.Ler();
@@ -114,9 +116,6 @@ public class KMP{
                                 }
 
                             }
-
-                            tmpBusca++;
-
                         }
 
                     }

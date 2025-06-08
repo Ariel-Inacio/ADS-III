@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 import util.*;
 
+
 public class uiAtualizacao {
     // Função que cria uma Interface de usuario para arulizao o filme
     public static void atualizarUI(int IDDesejado, String binarioFile, String binarioPais, Filmes novoFilme, Scanner sc, ArvoreBMais<RegistroID> arvore, int index, ListaInvertida lista1, ListaInvertida lista2, List<Integer> Criterios, HashExtensivel<ParID> hash) {
@@ -207,4 +208,5 @@ public class uiAtualizacao {
         }while(opcaoAtualizar != 0);
 
     }
+
 }

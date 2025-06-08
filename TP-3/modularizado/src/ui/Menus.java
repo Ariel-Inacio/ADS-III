@@ -330,6 +330,7 @@ public class Menus {
 
     }
 
+    //Cria o menu de compactação
     public static int MenuCompactar(Scanner sc) {
         int index = 0;
         boolean verificar = false;
@@ -339,11 +340,13 @@ public class Menus {
             System.out.println("\t1: Huffman");
             System.out.println("\t2: LZW");
             System.out.println("\t3: Ambas");
+            System.out.println("\t0: Cancelar");
             System.out.println("\t-----------------------------------------");
 
             index = sc.nextInt();
 
             switch (index) {
+                case 0: index = 0; verificar = true; break;
                 case 1: index = 1; verificar = true; break;
                 case 2: index = 2; verificar = true; break;
                 case 3: index = 3; verificar = true; break;
@@ -355,6 +358,7 @@ public class Menus {
         return index;
     }
 
+    //Cria o menu de descompactação
     public static int MenuDescompactar(Scanner sc) {
         int index = 0;
         boolean verificar = false;
@@ -364,11 +368,13 @@ public class Menus {
             System.out.println("\t1: Huffman");
             System.out.println("\t2: LZW");
             System.out.println("\t3: Ambas");
+            System.out.println("\t0: Cancelar");
             System.out.println("\t-----------------------------------------");
 
             index = sc.nextInt();
 
             switch (index) {
+                case 0: index = 0; verificar = true; break;
                 case 1: index = 1; verificar = true; break;
                 case 2: index = 2; verificar = true; break;
                 case 3: index = 3; verificar = true; break;
@@ -380,6 +386,7 @@ public class Menus {
         return index;
     }
 
+    //Cria o menu de casamento de padrões
     public static int MenuCasamento(Scanner sc) {
         int index = 0;
         boolean verificar = false;
@@ -389,11 +396,13 @@ public class Menus {
             System.out.println("\t1: KMP");
             System.out.println("\t2: Boyer-Moore");
             System.out.println("\t3: Ambas");
+            System.out.println("\t0: Cancelar");
             System.out.println("\t-----------------------------------------");
 
             index = sc.nextInt();
 
             switch (index) {
+                case 0: index = 0; verificar = true; break;
                 case 1: index = 1; verificar = true; break;
                 case 2: index = 2; verificar = true; break;
                 case 3: index = 3; verificar = true; break;
