@@ -93,11 +93,3 @@ Leia mais em: `TP-2/README.md`.
 2. Entre na pasta do TP desejado (ex.: `TP-1` ou `TP-2`).
 3. Abra em uma IDE Java (IntelliJ/Eclipse/VS Code).
 4. Compile e execute a classe principal (ex.: `Main.java`), conforme instruções do README do TP.
-
-## Próximas melhorias sugeridas (opcional)
-
-Se você quiser, eu também posso organizar o repositório para ficar ainda mais didático, por exemplo:
-
-- Padronizar as pastas de todos os TPs (`src/`, `docs/`, `data/`);
-- Criar um `docs/ETAPAS.md` com a explicação detalhada do que mudou em cada entrega;
-- Adicionar exemplos de uso (entradas/saídas) e prints no README de cada TP.
